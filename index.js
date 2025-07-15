@@ -59,7 +59,6 @@ try {
     const info = await bot.telegram.getWebhookInfo()
     res.json(info)
   })
-console.log(bot)
   app.listen(PORT)
 } catch (ex) {
   console.error('App Error:',ex)
