@@ -51,7 +51,6 @@ try {
   //---- Router
   app.get('/', (req, res) => res.render('index'))
   app.post(`/bot${TOKEN}`, (req, res) => {
-    console.log('BOT', req.body)
     bot.handleUpdate(req.body, res)
   })
   app.get('/test', async (req, res) => {
