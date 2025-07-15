@@ -32,12 +32,11 @@ try {
   bot.help((ctx)  => actions.onHelp(ctx))
   bot.on('contact', (ctx) => actions.onContact(ctx))
   bot.on('message', async (ctx) => actions.parse(ctx)) // Keep this line as is or it will cause messages not being delivered, why? Only god knows
-
+  bot.hears('hi', (ctx) => ctx.reply('Hey there'))
   bot.launch()
-
   // Enable graceful stop
-  process.once('SIGINT',  () => bot.stop('SIGINT'))
-  process.once('SIGTERM', () => bot.stop('SIGTERM'))
+  //process.once('SIGINT',  () => bot.stop('SIGINT'))
+  //process.once('SIGTERM', () => bot.stop('SIGTERM'))
 
   const app = express()
   app.use(express.json())
@@ -47,12 +46,24 @@ try {
   app.set('view engine', 'html')
   app.engine('html', ejs.renderFile)
   app.use(bot.webhookCallback('/bot'+TOKEN))
+//  app.use(bot.webhookCallback('/api/bot')
 
   //---- Router
   app.get('/', (req, res) => res.render('index'))
   app.get('/test', (req, res) => res.send('Tested ok'))
-  app.get('/bot', async (req, res) => res.send('OK'))
-
+/*
+  app.get('/api/bot', async (req, res) => {
+    try {
+      const msg = await req.json()
+      console.log(msg)
+      update(msg)
+      return new Response("", { status: 200 })
+    } catch (e) {
+      console.error(e)
+      return new Response("", { status: 500 })
+    }
+  })
+*/
   app.listen(PORT)
 } catch (ex) {
   console.error('App Error:',ex)
