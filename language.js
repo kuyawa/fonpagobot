@@ -57,7 +57,6 @@ const LANGUAGE={
 	// JP.JAPANESE
 	// PT.PORTUGUESE
 	'aceita': 'br',
-	'sobre': 'br',
 	'ajuda': 'br',
 	'anula': 'br',
 	'compra': 'br',
@@ -65,9 +64,9 @@ const LANGUAGE={
 	'diga': 'br',
 	'historia': 'br',
 	'história': 'br',
-	'ola': 'br',
 	'livro': 'br',
 	'nome': 'br',
+	'ola': 'br',
 	'ordens': 'br',
 	'paga': 'br',
 	'preco': 'br',
@@ -75,6 +74,7 @@ const LANGUAGE={
 	'prova': 'br',
 	'registra': 'br',
 	'saldo': 'br',
+	'sobre': 'br',
 	'vende': 'br',
 	'vendas': 'br'
 }

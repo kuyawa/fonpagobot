@@ -1,7 +1,7 @@
 {
   "name": "Fonpago",
   "version": "1.0.0",
-  "description": "Payments for Telegram",
+  "description": "Payments in Telegram",
   "license": "Private",
   "main": "index.js",
   "dependencies": {

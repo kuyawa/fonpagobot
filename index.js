@@ -24,8 +24,8 @@ try {
   const bot = new Telegraf(TOKEN)
   bot.catch((err, ctx) => { console.error(`Error for ${ctx.updateType}`, err)})
   bot.telegram.setWebhook(`${URL}/bot${TOKEN}`)
-  //bot.startWebhook(`/bot${TOKEN}`, null, PORT)
-  //bot.use(Telegraf.log())
+  //bot.startWebhook(`/bot${TOKEN}`, null, PORT)  // remove
+  //bot.use(Telegraf.log())                       // remove
 
   //---- Commands
   bot.start((ctx) => ctx.reply('Welcome to Fonpago, type `register YourName` to open an account then `help` for more info'))
@@ -36,8 +36,8 @@ try {
   bot.launch()
 
   // Enable graceful stop
-  //process.once('SIGINT',  () => bot.stop('SIGINT'))
-  //process.once('SIGTERM', () => bot.stop('SIGTERM'))
+  process.once('SIGINT',  () => bot.stop('SIGINT'))
+  process.once('SIGTERM', () => bot.stop('SIGTERM'))
 
   const app = express()
   app.use(express.json())
