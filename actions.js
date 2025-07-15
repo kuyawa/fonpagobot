@@ -288,6 +288,7 @@ async function sayHelp(ctx, data) {
 }
 
 async function sayRegister(ctx, data) {
+  console.log(`--> ${data.userid} Register`)
   // Validate name
   const parts = await parseText(data.userid, data.message, data.action)
   const name = parts.name
@@ -380,11 +381,13 @@ async function sayRegister(ctx, data) {
 }
 
 async function sayHello(ctx, data) {
+  console.log(`--> ${data.userid} Hello`)
   ctx.reply(VOX.welcomeApp)
 }
 
 // Show account and qrcode
 async function sayAccount(ctx, data) {
+  console.log(`--> ${data.userid} Account`)
   let text = 'Account?'
 
   // Check account does exist
