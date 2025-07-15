@@ -1,10 +1,11 @@
-// FONPAGO
+// FONPAGOBOT
 
 const PORT  = process.env.PORT  || 3000
 const TOKEN = process.env.TOKEN || ''
 const URL   = process.env.URL   || ''
 if(!TOKEN){ console.error('TOKEN is required'); process.exit(0) }
 if(!URL){ console.error('URL is required'); process.exit(0) }
+
 //process.on('uncaughtException', function(err) {
 //    console.error('Uncaught exception: ', err)
 //})
@@ -35,8 +36,8 @@ try {
   bot.launch()
 
   // Enable graceful stop
-  process.once('SIGINT',  () => bot.stop('SIGINT'))
-  process.once('SIGTERM', () => bot.stop('SIGTERM'))
+  //process.once('SIGINT',  () => bot.stop('SIGINT'))
+  //process.once('SIGTERM', () => bot.stop('SIGTERM'))
 
   const app = express()
   app.use(express.json())
