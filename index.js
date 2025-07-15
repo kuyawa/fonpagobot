@@ -22,7 +22,7 @@ const actions    = require('./actions')
 try {
   console.warn(new Date(), 'App is running...')
   const hook = `${URL}/bot${TOKEN}`
-  console.log(hook)
+  //console.log(hook)
   const bot = new Telegraf(TOKEN)
   bot.catch((err, ctx) => { console.error(`Error for ${ctx.updateType}`, err)})
   bot.telegram.setWebhook(hook)
@@ -36,11 +36,13 @@ try {
   bot.hears('hi', (ctx) => ctx.reply('Hey there'))
   bot.on('message', async (ctx) => actions.parse(ctx)) // Keep this line as is or it will cause messages not being delivered, why? Only god knows
   bot.launch()
+  
   // Enable graceful stop
-  //process.once('SIGINT',  () => bot.stop('SIGINT'))
-  //process.once('SIGTERM', () => bot.stop('SIGTERM'))
+  process.once('SIGINT',  () => bot.stop('SIGINT'))
+  process.once('SIGTERM', () => bot.stop('SIGTERM'))
+  
   const app = express()
-  app.use(bot.webhookCallback('/bot'+TOKEN))
+  //app.use(bot.webhookCallback('/bot'+TOKEN))
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
   app.use(express.static(path.join(__dirname, 'public')))
@@ -50,17 +52,12 @@ try {
 
   //---- Router
   app.get('/', (req, res) => res.render('index'))
-  app.post(`/bot${TOKEN}`, (req, res) => {
-    bot.handleUpdate(req.body, res)
-  })
+  //app.post(`/bot${TOKEN}`, (req, res) => {
+  //  bot.handleUpdate(req.body, res)
+  //})
   app.get('/test', async (req, res) => {
     const info = await bot.telegram.getWebhookInfo()
-    res.send(`
-<pre>
-Tested ok<br>
-Webhook: ${JSON.stringify(info,null,2)}
-</pre>
-    `)
+    res.json(info)
   })
 console.log(bot)
   app.listen(PORT)
