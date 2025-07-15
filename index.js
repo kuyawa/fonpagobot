@@ -41,7 +41,7 @@ try {
   //process.once('SIGTERM', () => bot.stop('SIGTERM'))
 
   const app = express()
-  //app.use(bot.webhookCallback('/bot'+TOKEN))
+  app.use(bot.webhookCallback('/bot'+TOKEN))
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
   app.use(express.static(path.join(__dirname, 'public')))
@@ -51,6 +51,9 @@ try {
 
   //---- Router
   app.get('/', (req, res) => res.render('index'))
+  app.post(`/bot${TOKEN}`, (req, res) => {
+    bot.handleUpdate(req.body, res)
+  })
   app.get('/test', async (req, res) => {
     const info = await bot.telegram.getWebhookInfo()
     res.send(`
