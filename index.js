@@ -39,7 +39,6 @@ try {
   // Enable graceful stop
   //process.once('SIGINT',  () => bot.stop('SIGINT'))
   //process.once('SIGTERM', () => bot.stop('SIGTERM'))
-
   const app = express()
   app.use(bot.webhookCallback('/bot'+TOKEN))
   app.use(express.json())
@@ -52,6 +51,7 @@ try {
   //---- Router
   app.get('/', (req, res) => res.render('index'))
   app.post(`/bot${TOKEN}`, (req, res) => {
+    console.log('BOT', req.body)
     bot.handleUpdate(req.body, res)
   })
   app.get('/test', async (req, res) => {
@@ -63,6 +63,7 @@ Webhook: ${JSON.stringify(info,null,2)}
 </pre>
     `)
   })
+console.log(bot)
   app.listen(PORT)
 } catch (ex) {
   console.error('App Error:',ex)
