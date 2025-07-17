@@ -178,6 +178,7 @@ async function waitForBalance(address, retries=10) {
 
 // Internal
 async function waitForStatus(address, retries=10) {
+  console.log('WAIT FOR STATE', address)
   let counter = 0
   while (counter < retries) {
     counter += 1
@@ -258,10 +259,26 @@ async function getBalances(address) {
 }
 
 async function getState(address){
-  const url = rpcUrl3 + 'addressInformation?address=' + address
-  const info = await web.getApi(url)
-  const state = info.status
+  console.log('GET STATE', address)
+  //const url = rpcUrl3 + 'addressInformation?address=' + address
+  //const info = await web.getApi(url)
+  //const state = info.status
   //console.log(address, state)
+  const payload = {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getAddressState",
+    "params": {
+      "address": address
+    }
+  }
+  const result = await web.postApi(apiUrl, payload)
+  console.log('RESULT', result)
+  let state = null
+  if(result) {
+    state = result.state
+  }
+  console.log(address, state)
   return state
 }
 
