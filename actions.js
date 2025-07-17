@@ -579,7 +579,7 @@ async function getPrice(asset) {
     let update = false
     let prices = await db.getPrices()
     //console.log(prices.updated)
-    //console.log('Prices: ',prices)
+    console.log('Prices: ',prices)
     if(!prices){ 
       update = true
       prices = {currencies:[], cryptos:[]}
