@@ -373,7 +373,7 @@ async function sayRegister(ctx, data) {
     secret:   result.privateKeyHex,
     network:  network
   }
-  console.log('RECORD', record)
+  console.log('RECORD', record.userid)
   let recId = 0
   try {
     recId = await db.newAccount(record)

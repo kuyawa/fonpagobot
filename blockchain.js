@@ -205,7 +205,7 @@ async function waitForConfirmation(address, prevHash, retries=10) {
     if(lastHash!==prevHash){
       //console.log('Tx', tx)
       //console.log('Tx hash', tx.hash)
-      const state = await getTransactionState(lastHash)
+      const state = await getTransactionState(address, lastHash)
       console.log('Tx State', state, lastHash)
       if(state===undefined){ 
         console.log('Tx undefined', tx)
@@ -249,6 +249,7 @@ async function getBalance(address){
   return balance
 }
 
+/*
 async function getBalances(address) {
   const url = rpcUrl3 + 'addressInformation?address=' + address
   const result = await web.getApi(url)
@@ -257,6 +258,7 @@ async function getBalances(address) {
   //console.log(address, balance)
   return balance
 }
+*/
 
 async function getState(address){
   console.log('GET STATE', address)
@@ -282,11 +284,24 @@ async function getState(address){
   return state
 }
 
-async function getTransaction(hash){
-  const url = rpcUrl3 + 'transactions?hash=' + hash
-  const info = await web.getApi(url)
+async function getTransaction(address, hash){
+  console.log('GET TRANSACTION', address, hash)
+  //const url = rpcUrl3 + 'transactions?hash=' + hash
+  //const info = await web.getApi(url)
   //console.log('TX', info)
-  const tx = info.transactions?.[0] ?? null
+  const payload = {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransactions",
+    "params": {
+      "address": address,
+      "hash": hash,
+      "limit": 1
+    }
+  }
+  const result = await web.postApi(apiUrl, payload)
+  //console.log('RESULT', result)
+  const tx = result.result?.[0] ?? null
   return tx
 }
 
@@ -296,8 +311,8 @@ async function getLastTransaction(address){
   return tx
 }
 
-async function getTransactionState(hash){
-  const tx = await getTransaction(hash)
+async function getTransactionState(address, hash){
+  const tx = await getTransaction(address, hash)
   //console.log('TX', tx)
   //const code = tx?.description?.compute_ph?.exit_code // if !== 0 then failed
   return tx?.description?.action?.success
