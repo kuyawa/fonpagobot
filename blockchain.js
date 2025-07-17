@@ -53,7 +53,7 @@ async function newAccount(){
     //console.log('Payment', payment)
     const result = await banker.sendTransfer(payment)
     console.log('Payment sent')
-    const funded = await waitForBalance(receiver)
+    const funded = await waitForBalance(receiver, 30)
     console.log('Funded', funded)
     if(!funded){ return { error: 'Error funding account', type:'fund' } }
 
@@ -226,12 +226,23 @@ async function waitForConfirmation(address, prevHash, retries=10) {
 
 async function getBalance(address){
   console.log('GET BALANCE', address)
-  const url = rpcUrl3 + 'addressInformation?address=' + address
-  const result = await web.getApi(url)
-  let balance = null
+  //const url = rpcUrl3 + 'addressInformation?address=' + address
+  //const result = await web.getApi(url)
+  //const url = rpcUrl2 + 'addressInformation?address=' + address
+  const payload = {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getAddressBalance",
+    "params": {
+      "address": address
+    }
+  }
+  const result = await web.postApi(apiUrl, payload)
   console.log('RESULT', result)
+  let balance = null
   if(result) {
-    balance = Number.parseInt(result?.balance || '0') / 10**9
+    balance = Number.parseInt(result?.result || '0') / 10**9
+    //balance = Number.parseInt(result?.balance || '0') / 10**9
   }
   console.log(address, balance)
   return balance
