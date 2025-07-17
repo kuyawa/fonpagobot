@@ -164,6 +164,7 @@ async function waitForBalance(address, retries=10) {
     counter += 1
     console.log('TRY BALANCE', counter)
     const balance = await getBalance(address)
+    console.log('> BALANCE', balance)
     if (balance > 0) {
       console.log('Balance detected:', balance, 'TON')
       return true
@@ -226,10 +227,11 @@ async function getBalance(address){
   const url = rpcUrl3 + 'addressInformation?address=' + address
   const result = await web.getApi(url)
   let balance = null
+  console.log('BALANCE', result)
   if(result) {
     balance = (result?.balance || 0) / 10**9
   }
-  //console.log(address, balance)
+  console.log(address, balance)
   return balance
 }
 
