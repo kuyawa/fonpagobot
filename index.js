@@ -1,10 +1,10 @@
 // FONPAGOBOT
 
-const PORT  = process.env.PORT  || 3000
-const TOKEN = process.env.TOKEN || ''
-const URL   = process.env.URL   || ''
+const PORT   = process.env.PORT   || 3000
+const TOKEN  = process.env.TOKEN  || ''
+const BOTURL = process.env.BOTURL || ''
 if(!TOKEN){ console.error('TOKEN is required'); process.exit(0) }
-if(!URL){ console.error('URL is required'); process.exit(0) }
+if(!BOTURL){ console.error('BOTURL is required'); process.exit(0) }
 
 //process.on('uncaughtException', function(err) {
 //    console.error('Uncaught exception: ', err)
@@ -21,7 +21,7 @@ const actions    = require('./actions')
 // Start
 try {
   console.warn(new Date(), 'App is running...')
-  const hook = `${URL}/bot${TOKEN}`
+  const hook = `${BOTURL}/bot${TOKEN}`
   //console.log(hook)
   const bot = new Telegraf(TOKEN)
   bot.catch((err, ctx) => { console.error(`Error for ${ctx.updateType}`, err)})
