@@ -6,9 +6,9 @@ const BOTURL = process.env.BOTURL || ''
 if(!TOKEN){ console.error('TOKEN is required'); process.exit(0) }
 if(!BOTURL){ console.error('BOTURL is required'); process.exit(0) }
 
-//process.on('uncaughtException', function(err) {
-//    console.error('Uncaught exception: ', err)
-//})
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught exception: ', err)
+})
 
 const fs         = require('node:fs')
 const path       = require('node:path')
@@ -88,7 +88,22 @@ try {
     const info = await bot.telegram.getWebhookInfo()
     res.json(info)
   })
-  app.listen(PORT)
+
+  //app.listen(PORT)
+
+  const server = app.listen(PORT, () => {
+    console.log(`Listening on ${PORT}`)
+  })
+
+  process.on('SIGTERM', async () => {
+    console.log('SIGTERM signal received: gracefully shutting down')
+    if (server) {
+      server.close(() => {
+        console.log('HTTP server closed')
+      })
+    }
+  })
+
 } catch (ex) {
   console.error('App Error:',ex)
 }

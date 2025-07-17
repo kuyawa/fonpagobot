@@ -11,7 +11,7 @@ const netflag = (network==='testnet')
 const bankKey = process.env.BANKKEY   || ''
 const apiKey  = process.env.TONWEBKEY || ''
 const apiUrl  = network==='mainnet' ? 'https://toncenter.com/api/v2/jsonRPC' : 'https://testnet.toncenter.com/api/v2/jsonRPC'
-const rpcUrl2  = network==='mainnet' ? 'https://toncenter.com/api/v2/' : 'https://testnet.toncenter.com/api/v2/'
+const rpcUrl2 = network==='mainnet' ? 'https://toncenter.com/api/v2/' : 'https://testnet.toncenter.com/api/v2/'
 const rpcUrl3 = network==='mainnet' ? 'https://toncenter.com/api/v3/' : 'https://testnet.toncenter.com/api/v3/'
 
 async function sleep(seconds=5){
@@ -225,7 +225,10 @@ async function waitForConfirmation(address, prevHash, retries=10) {
 async function getBalance(address){
   const url = rpcUrl3 + 'addressInformation?address=' + address
   const result = await web.getApi(url)
-  const balance = ((result?.balance || 0) / 10**9).toFixed(4)
+  let balance = null
+  if(result) {
+    balance = (result?.balance || 0) / 10**9
+  }
   //console.log(address, balance)
   return balance
 }

@@ -481,9 +481,10 @@ async function sayBalance(ctx, data) {
   let text = ''
   const publicKey = await db.getPublicKey(data.userid)
   if(!publicKey){ ctx.reply(VOX.accountNotFound); return }
-  const info = await blockchain.getBalance(publicKey)
-  if(info) {
-    text = `${VOX.yourBalanceIs}: *${info} ${CURRENCY}*`
+  const result = await blockchain.getBalance(publicKey)
+  if(result) {
+    const balance = result.toFixed(4)
+    text = `${VOX.yourBalanceIs}: *${balance} ${CURRENCY}*`
   } else {
     text = VOX.errorContactingServer
   }
