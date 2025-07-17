@@ -195,6 +195,7 @@ async function waitForStatus(address, retries=10) {
 }
 
 async function waitForConfirmation(address, prevHash, retries=10) {
+  console.log('PREV HASH', address, prevHash)
   let counter = 0
   while (counter < retries) {
     counter += 1
@@ -285,6 +286,16 @@ async function getState(address){
 }
 
 async function getTransaction(address, hash){
+  console.log('GET TRANSACTION', address, hash)
+  const url = rpcUrl3 + 'transactions?hash=' + hash + '&limit=1'
+  const info = await web.getApi(url)
+  console.log('RESULT', info)
+  const tx = info.transactions?.[0] ?? null
+  console.log('TX', tx)
+  return tx
+}
+
+async function getTransactionRPC(address, hash){
   console.log('GET TRANSACTION', address, hash)
   //const url = rpcUrl3 + 'transactions?hash=' + hash
   //const info = await web.getApi(url)
