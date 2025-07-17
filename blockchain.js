@@ -276,7 +276,7 @@ async function getState(address){
   console.log('RESULT', result)
   let state = null
   if(result) {
-    state = result.state
+    state = result.result // active
   }
   console.log(address, state)
   return state
