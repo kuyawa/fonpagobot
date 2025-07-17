@@ -225,7 +225,7 @@ async function waitForConfirmation(address, prevHash, retries=10) {
 async function getBalance(address){
   const url = rpcUrl3 + 'addressInformation?address=' + address
   const result = await web.getApi(url)
-  const balance = (result?.balance || 0) / 10**9
+  const balance = ((result?.balance || 0) / 10**9).toFixed(4)
   //console.log(address, balance)
   return balance
 }
@@ -274,6 +274,10 @@ async function getHistory(address, limit=10){
     const data = await web.getApi(url)
     //console.log('History', data.result.length)
     //console.log('History', JSON.stringify(data,null,2))
+    if(!data?.result){
+      console.log('No history for', address)
+      return null
+    }
     const info = data.result.map(it=>{
       // if  out_msgs is payment
       // if !out_msgs is receipt

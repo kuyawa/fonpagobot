@@ -72,7 +72,7 @@ const LANGUAGE={
 	'preco': 'br',
 	'preço': 'br',
 	'prova': 'br',
-	'registra': 'br',
+	'registre': 'br',
 	'saldo': 'br',
 	'sobre': 'br',
 	'vende': 'br',
@@ -197,11 +197,11 @@ const tradeES = '*Intercambio de activos*\n\n'+
 
 const helpBR =  '*Ações no Fonpago*\n\n'+
 				'Aqui está uma lista de coisas que você pode fazer:\n\n'+
-				'*registra*: criar uma conta e registrar um nome de usuário\n'+
+				'*registre*: criar uma conta e registrar um nome de usuário\n'+
 				'```'+
-				'  registra Luiz\n'+
-				'  registra Maria123\n'+
-				'  registra Walmart\n'+
+				'  registre Luiz\n'+
+				'  registre Maria123\n'+
+				'  registre Walmart\n'+
 				'```'+
 				'_Observação: somente letras e números, sem espaços ou caracteres especiais_\n\n'+
 				'*conta*: Visualize seu número de conta e código QR\n\n'+
@@ -302,7 +302,7 @@ const VOCABULARY={
 		'nameSet': 'Your name has been set to {0}',
 		'yourBalanceIs': 'Your balance is',
 		'lastTransactions': 'Last 10 transactions',
-		'newAccount': 'New account',
+		'newAccount': 'Creating new account, it may take a minute...',
 		'payWord': 'pay',
 		'payFrom': 'from',
 		'payTo': 'to',
@@ -315,7 +315,10 @@ const VOCABULARY={
 		'invalidAmount': 'Invalid amount {0}',
 		'notRegistered': 'You are not registered, type `register` to open your account',
 		'destinationNotFound': 'Destination not found',
+		'paymentFailed': 'Payment failed',
 		'paymentSent': 'Payment sent',
+		'paymentSentNotConfirmed': 'Payment sent, waiting for confirmation...',
+		'paymentConfirmed': 'Payment confirmed',
 		'paymentReceived': 'Payment of {0} {1} received from {2}',
 		'newTrustline': 'Now you can receive payments in {0}',
 		'allWord': 'all',
@@ -402,7 +405,7 @@ const VOCABULARY={
 		'nameSet': 'Tu nombre ha sido registrado como {0}',
 		'yourBalanceIs': 'Tu saldo es',
 		'lastTransactions': 'Ultimas 10 transacciones',
-		'newAccount': 'Nueva cuenta',
+		'newAccount': 'Creando nueva cuenta, puede tardar un minuto...',
 		'payWord': 'paga',
 		'payFrom': 'de',
 		'payTo': 'a',
@@ -415,7 +418,10 @@ const VOCABULARY={
 		'invalidAmount': 'Monto inválido {0}',
 		'notRegistered': 'No estás registrado, tipea `registrar TuNombre` para abrir una cuenta',
 		'destinationNotFound': 'Destinatario no encontrado',
+		'paymentFailed': 'Error en el pago',
 		'paymentSent': 'Pago enviado',
+		'paymentSentNotConfirmed': 'Pago enviado, esperando confirmación...',
+		'paymentConfirmed': 'Pago confirmado',
 		'paymentReceived': 'Pago de {0} {1} recibido de {2}',
 		'newTrustline': 'Ya puedes aceptar pagos en {0}',
 		'allWord': 'todo',
@@ -455,14 +461,14 @@ const VOCABULARY={
 		'about'   : 'sobre',
 		'help'    : 'ajuda',
 		'hello'   : 'ola',
-		'register': 'registra',
+		'register': 'registre',
 		'name'    : 'nome',
 		'account' : 'conta',
 		'balance' : 'saldo',
 		'history' : 'historia',
 		'pay'     : 'paga',
 		'to'      : 'a',
-		'price'   : 'preco',
+		'price'   : 'preço',
 		'trust'   : 'aceita',
 		'assets'  : 'activos',
 		'sell'    : 'vende',
@@ -487,7 +493,7 @@ const VOCABULARY={
 		'phoneRegistered': 'Seu número de telefone foi registrado',
 		'aboutText': '*Fonpago {0}*\nPagamentos em Telegram\nTodos os direitos reservados',
 		'helpText': helpBR,
-		'noNameProvided': 'O nome é necessário para registrar uma conta como em `register LuisPerez`',
+		'noNameProvided': 'O nome é necessário para registrar uma conta como em `registre LuisPerez`',
 		'alreadyRegisteredWelcome': 'Você já possui uma conta registrada, bem-vindo {0}',
 		'alreadyRegisteredName': 'Você já tem uma conta registrada e seu nome é {0}. Se você quiser mudar seu nome use `nome LuisPerez`',
 		'invalidName': 'Nome inválido, apenas letras e números são permitidos, sem espaços ou símbolos',
@@ -502,7 +508,7 @@ const VOCABULARY={
 		'nameSet': 'Seu nome foi registrado como {0}',
 		'yourBalanceIs': 'Seu saldo é',
 		'lastTransactions': 'Últimas 10 transações',
-		'newAccount': 'Nova conta',
+		'newAccount': 'Criando uma nova conta, pode demorar um minuto...',
 		'payWord': 'paga',
 		'payFrom': 'de',
 		'payTo': 'para',
@@ -513,9 +519,12 @@ const VOCABULARY={
 		'testOk': 'Teste ok',
 		'insufficientFunds': 'Fundos insuficientes, pagamento não enviado',
 		'invalidAmount': 'Valor inválido {0}',
-		'notRegistered': 'Você não está registrado, digite `register YourName` para abrir uma conta',
+		'notRegistered': 'Você não está registrado, digite `registre MeuNome` para abrir uma conta',
+		'paymentFailed': 'Erro no pagamento',
 		'destinationNotFound': 'Destinatário não encontrado',
 		'paymentSent': 'Pagamento enviado',
+		'paymentSentNotConfirmed': 'Pagamento enviado, aguardando confirmação...',
+		'paymentConfirmed': 'Pagamento confirmado',
 		'paymentReceived': 'Pagamento de {0} {1} recebido de {2}',
 		'newTrustline': 'Agora você pode aceitar pagamentos em {0}',
 		'allWord': 'todos',

@@ -31,15 +31,28 @@ let VOX  = language.getVocabulary(LANG)
 async function maintenance(ctx) {
   console.log('<-- [OFF]', ctx.update.message.from.id, ctx.update.message.text)
   const txt = 'Fonpago is down for maintenance, try again in a moment'
+  // TODO: inline_query
   ctx.reply(txt)
 }
 
 // Parse all messages and process actions
 async function parse(ctx) {
   if(!ctx){ console.log('Error: no context'); return }
-  if(APPISDOWN) { maintenance(ctx); return }
 
-  //console.log('Context', ctx); return
+  //console.log('Context', ctx)
+  if(ctx.update.inline_query){
+    ctx.update.message = {
+      inline: true,
+      from: {
+        id: ctx.update.inline_query.id,
+        username: ctx.update.inline_query.from.username
+      }, 
+      text: ctx.update.inline_query.query,
+      contact: undefined
+    }
+  }
+
+  if(APPISDOWN) { maintenance(ctx); return }
   const userid   = BASEAPP+ctx.update.message.from.id
   const handler  = ctx.update.message.from.id
   const username = ctx.update.message.from.username
@@ -288,7 +301,7 @@ async function sayHelp(ctx, data) {
 }
 
 async function sayRegister(ctx, data) {
-  console.log(`--> ${data.userid} Register`)
+  console.log(`--> Register ${data.userid}`)
   // Validate name
   const parts = await parseText(data.userid, data.message, data.action)
   const name = parts.name
@@ -339,8 +352,10 @@ async function sayRegister(ctx, data) {
     ctx.reply(text)
     return
   }
+  text = VOX.newAccount
+  ctx.reply(text)
 
-  console.log('ACTION!')
+  console.log('Registering account...')
   const result = await blockchain.newAccount()
   //console.log('Result', result)
 
@@ -397,13 +412,12 @@ async function sayAccount(ctx, data) {
     // User does not exist? What?
     console.error('Error searching for account '+data.userid)
     text = VOX.errorSearching
+    ctx.reply(text)
   } else {
     text = account
     qurl = 'https://kuyawa.net/qrcode/?q=' + text
     ctx.replyWithPhoto({ url: qurl }, { caption: text })
   }
-
-  ctx.reply(text)
 }
 
 async function sayName(ctx, data) {
@@ -469,7 +483,7 @@ async function sayBalance(ctx, data) {
   if(!publicKey){ ctx.reply(VOX.accountNotFound); return }
   const info = await blockchain.getBalance(publicKey)
   if(info) {
-    text = '*'+VOX.yourBalanceIs+'*:\n\n'+info //'Your balance is '+info.balance+' '+info.asset
+    text = `${VOX.yourBalanceIs}: *${info} ${CURRENCY}*`
   } else {
     text = VOX.errorContactingServer
   }
@@ -509,7 +523,7 @@ async function sayHistory(ctx, data) {
         address  : '',
         color    : ''
     }
-    if(tx.fees === 0) { item.typex = 'New' }
+    if(tx.fees === 0) { item.typex = 'New'; /*item.type = 'new'*/ }
     item.address = (item.type==='pay' ? item.to : item.from)
     item.color   = item.type
     info.history.push(item)
@@ -540,13 +554,13 @@ async function sayHistory(ctx, data) {
       else { name = item.address.substr(0,8) }
     }
     if(item.type==='new') {
-      line = 'New account '+parseFloat(item.amount).toFixed(4)+' '+item.asset
+      line = 'New account '+Number.parseFloat(item.amount).toFixed(4)+' '+item.asset
     } else {
-      line = item.typex+' '+parseFloat(item.amount).toFixed(4)+' '+item.asset+' '+(item.type==='pay' ? 'to' : 'from')+' '+name
+      line = item.typex+' '+Number.parseFloat(item.amount).toFixed(4)+' '+item.asset+' '+(item.type==='pay' ? 'to  ' : 'from')+' '+name
     }
     hist.push(line)
   }
-  text = '*Last 10 transactions*\n' + hist.join('\n')
+  text = '*Last 10 transactions*\n' + '`' + hist.join('\n').replaceAll('_','-') + '`'
 
   ctx.replyWithMarkdown(text)
 }
@@ -702,7 +716,7 @@ async function sendPayment(ctx, data) {
     //console.log(sender)
     if(!sender){ 
       console.error('Sender not found '+parts.sender) 
-      ctx.reply("You are not registered, type 'hello' to open your account") 
+      ctx.reply(VOX.notRegistered) 
       return
     }
     let name = sender.username
@@ -714,15 +728,16 @@ async function sendPayment(ctx, data) {
     //var destin  = await db.getPublicKey(receiver) // check userid
     if(!rcvacct) { 
       console.error('Destination account not found') 
-      ctx.reply('Destination not found') 
+      ctx.reply(VOX.destinationNotFound) 
       return
     }
-    destin = rcvacct.account
+    const destin = rcvacct.account
     //console.log({destin})
-    //receiver = rcvacct.userid.substr(8) // remove telegram:
+    const userid = rcvacct.userid.substr(9) // remove telegram:
+    //console.log({destin})
     if(!destin) { 
       console.error('Destination userid not found') 
-      ctx.reply('Destination not found') 
+      ctx.reply(VOX.destinationNotFound) 
       return
     }
 
@@ -743,15 +758,16 @@ async function sendPayment(ctx, data) {
     console.log('Result', resp)
     if(resp.success) {
       // Inform sender
-      text = 'Payment sent'
+      text = VOX.paymentSentNotConfirmed
       ctx.reply(text)
 
       // Inform receiver
-      let msg = 'Payment of '+amount+' '+asset+' received from '+name
+      //let msg = 'Payment of '+amount+' '+asset+' received from '+name
+      let msg = VOX.paymentReceived.parse(amount, asset, name)
       if(reference && reference!==''){ msg += ' ref '+reference }
       const app = rcvacct.userid.split(':')[0]
       if(app==='telegram') {
-        ctx.telegram.sendMessage(receiver, msg)  // send message to receiver
+        ctx.telegram.sendMessage(userid, msg)  // send message to receiver
       } else {
         //sendExternal(INBOXURL, INBOXKEY, app, sender.userid, sender.username, rcvacct.userid, rcvacct.username, msg)
       }
@@ -760,10 +776,10 @@ async function sendPayment(ctx, data) {
       // Wait for confirmation
       blockchain.waitForConfirmation(source, resp.prevHash).then(ok=>{
         console.log('Confirmed', ok)
-        text = ok ? 'Payment confirmed' : 'Payment failed'
+        text = ok ? VOX.paymentConfirmed : VOX.paymentFailed
         ctx.reply(text) // inform sender
         if(app==='telegram') {
-          ctx.telegram.sendMessage(receiver, text)  // inform receiver
+          ctx.telegram.sendMessage(userid, text)  // inform receiver
         } else {
           //sendExternal(INBOXURL, INBOXKEY, app, sender.userid, sender.username, rcvacct.userid, rcvacct.username, msg)
         }

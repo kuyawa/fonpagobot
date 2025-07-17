@@ -35,6 +35,34 @@ try {
   bot.on('contact', (ctx) => actions.onContact(ctx))
   bot.hears('hi', (ctx) => ctx.reply('Hey there'))
   bot.on('message', async (ctx) => actions.parse(ctx)) // Keep this line as is or it will cause messages not being delivered, why? Only god knows
+//TODO:
+//bot.on('inline_query', async (ctx) => actions.parse(ctx))
+/*
+  bot.on('inline_query', async (ctx) => {
+    console.log('INLINE', ctx.inlineQuery)
+    if(!ctx.inlineQuery.query){
+      console.log('QUERY EMPTY')
+      return ctx.answerInlineQuery([{
+        id: '1',
+        type: 'article', 
+        title: 'Help', 
+        message_text: 'Type help for more info',
+      }])
+    }
+    // TODO: check action
+    const results = [{
+      id: ctx.inlineQuery.id,
+      type: 'article', 
+      title: 'Hello', 
+      message_text: 'Hello world',
+      //description: 'This is an example result',
+      //thumb_url: 'https://example.com/thumb.jpg',
+      //url: 'https://example.com'
+    }]
+    console.log('RESULTS', results)
+    return ctx.answerInlineQuery(results) 
+  })
+*/
   bot.launch()
   
   // Enable graceful stop
