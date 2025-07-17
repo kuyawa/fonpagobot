@@ -182,7 +182,7 @@ async function waitForStatus(address, retries=10) {
   let counter = 0
   while (counter < retries) {
     counter += 1
-    const state = await getState(address)
+    const state = await getAccountState(address)
     console.log('TRY STATUS', counter, state)
     if (state==='active') {
       console.log('Account activated!')
@@ -195,7 +195,7 @@ async function waitForStatus(address, retries=10) {
 }
 
 async function waitForConfirmation(address, prevHash, retries=10) {
-  console.log('PREV HASH', address, prevHash)
+  console.log('WAIT FOR CONFIRMATION', address, prevHash)
   let counter = 0
   while (counter < retries) {
     counter += 1
@@ -203,22 +203,28 @@ async function waitForConfirmation(address, prevHash, retries=10) {
     const tx = await getLastTransaction(address)
     const lastHash = utils.base64tohex(tx?.hash||'')
     // compare if last tx is still prev-hash until we get new-hash
+    console.log('Tx hash', lastHash)
     if(lastHash!==prevHash){
-      //console.log('Tx', tx)
-      //console.log('Tx hash', tx.hash)
-      const state = await getTransactionState(address, lastHash)
-      console.log('Tx State', state, lastHash)
-      if(state===undefined){
-        console.log('Tx undefined', tx)
-        await sleep(5)
-        continue
+      const tx2 = await getTransactionV2(address, lastHash)
+      const hash2 = tx2?.transaction_id?.hash
+      console.log('Tx hash2', hash2)
+      while (counter < retries) {
+        counter += 1
+        console.log('TRY STATE', counter)
+        const state = await getTransactionState(address, hash2)
+        console.log('Tx State', state, hash2)
+        if(state===undefined){
+          console.log('Tx undefined', tx2)
+          await sleep(5)
+          continue
+        }
+        if(state===true) {
+          console.log('Tx confirmed')
+          return true
+        }
+        console.log('Tx failed')
+        return false
       }
-      if(state===true) {
-        console.log('Tx confirmed')
-        return true
-      }
-      console.log('Tx failed')
-      return false
     }
     await sleep(5)
   }
@@ -261,7 +267,7 @@ async function getBalances(address) {
 }
 */
 
-async function getState(address){
+async function getAccountState(address){
   console.log('GET STATE', address)
   //const url = rpcUrl3 + 'addressInformation?address=' + address
   //const info = await web.getApi(url)
@@ -300,10 +306,10 @@ async function getTransactionV2(address, hash){
 // Short hash, returns description.state
 async function getTransactionV3(address, hash){
   console.log('GET TRANSACTION v3', address, hash)
-  const url = `${rpcUrl3}transactions?hash=${hash}&limit=1`
-  //console.log('URL', url)
+  const url = `${rpcUrl3}transactions?hash=${encodeURIComponent(hash)}&limit=1`
+  console.log('URL v3', url)
   const info = await web.getApi(url)
-  //console.log('RESULT', info)
+  console.log('RESULT', info)
   const tx = info.transactions?.[0] ?? null
   console.log('TX3', tx)
   return tx
@@ -336,15 +342,14 @@ async function getLastTransaction(address){
   return tx
 }
 
+// Short base64 hash
 async function getTransactionState(address, hash){
-  const tx1 = await getTransactionV2(address, hash)
-  let tx2 = null
-  let state = false
-  if(tx1?.transaction_id?.hash){
-    tx2 = await getTransactionV3(address, tx1.transaction_id.hash)
-    state = tx2?.description?.action?.success
-  }
+  console.log('GET TRANSACTION STATE', address, hash)
+  const tx = await getTransactionV3(address, hash)
+  console.log('TX', tx)
+  const state = tx?.description?.action?.success
   //const code = tx?.description?.compute_ph?.exit_code // if !== 0 then failed
+  console.log('STATE', state)
   return state
 }
 
@@ -470,7 +475,7 @@ async function sendPayment(data){
     //console.log('Result', result)
     sent = true
     if(wait){
-      confirmed = await waitForConfirmation(source, prevHash)
+      confirmed = await waitForConfirmation(source, prevHash, 20)
     }
     //// TODO: parse tx and send id, time, etc
     return {success: sent, confirmed, prevHash}
@@ -485,7 +490,7 @@ module.exports = {
   getAccount,
   getBalance,
   getHistory,
-  getState,
+  getAccountState,
   getTransactionV2,
   getTransactionV3,
   getTransactionRPC,

@@ -579,7 +579,7 @@ async function getPrice(asset) {
     let update = false
     let prices = await db.getPrices()
     //console.log(prices.updated)
-    console.log('Prices: ',prices)
+    //console.log('Prices: ',prices)
     if(!prices){ 
       update = true
       prices = {currencies:[], cryptos:[]}
@@ -603,10 +603,13 @@ async function getPrice(asset) {
       const list1 = await web.getApi('https://api.binance.com/api/v1/ticker/24hr')
       if(list1) {
         ok = true
-        for(item in list1) { 
+        for(item in list1) {
           symbol = list1[item].symbol
           price  = list1[item].lastPrice
-          prices.cryptos[symbol] = price
+          if(symbol?.endsWith('USDT')){
+            const coin = symbol.substr(0, symbol.length - 4)
+            prices.cryptos[coin] = price
+          }
         }
       } else {
         console.error("Price NO JSON")
@@ -638,9 +641,9 @@ async function getPrice(asset) {
     price = prices.currencies[asset]
     if(asset==='BTC') { price = null } // Skip btc in currencies, check as crypto
     if (!price){
-      const market = asset+'USDT' // TODO: market pair any/any
+      const market = asset //+'USDT' // TODO: market pair any/any
       price = prices.cryptos[market]
-      //console.log(market,price)
+      console.log('PRICE', market, price)
     }
     ok = true
   } catch (ex) {
@@ -842,6 +845,7 @@ async function sayInvalid(ctx, data) {
 module.exports = {
   onHelp,
   onContact,
+  getPrice,
   parse
 }
 
