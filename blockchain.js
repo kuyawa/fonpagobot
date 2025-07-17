@@ -285,18 +285,32 @@ async function getState(address){
   return state
 }
 
-async function getTransaction(address, hash){
-  console.log('GET TRANSACTION', address, hash)
-  const url = rpcUrl3 + 'transactions?hash=' + hash + '&limit=1'
+// Long hash, no state
+async function getTransactionV2(address, hash){
+  console.log('GET TRANSACTION v2', address, hash)
+  const url = `${rpcUrl2}getTransactions?address=${address}&hash=${hash}&limit=1`
   const info = await web.getApi(url)
-  console.log('RESULT', info)
+  //console.log('RESULT', info)
+  const tx = info.result?.[0] ?? null
+  //const tx = info.transactions?.[0] ?? null
+  console.log('TX2', tx)
+  return tx
+}
+
+// Short hash, returns description.state
+async function getTransactionV3(address, hash){
+  console.log('GET TRANSACTION v3', address, hash)
+  const url = `${rpcUrl3}transactions?hash=${hash}&limit=1`
+  //console.log('URL', url)
+  const info = await web.getApi(url)
+  //console.log('RESULT', info)
   const tx = info.transactions?.[0] ?? null
-  console.log('TX', tx)
+  console.log('TX3', tx)
   return tx
 }
 
 async function getTransactionRPC(address, hash){
-  console.log('GET TRANSACTION', address, hash)
+  console.log('GET TRANSACTION RPC', address, hash)
   //const url = rpcUrl3 + 'transactions?hash=' + hash
   //const info = await web.getApi(url)
   //console.log('TX', info)
@@ -311,8 +325,8 @@ async function getTransactionRPC(address, hash){
     }
   }
   const result = await web.postApi(apiUrl, payload)
-  //console.log('RESULT', result)
   const tx = result.result?.[0] ?? null
+  console.log('TXR', tx)
   return tx
 }
 
@@ -323,10 +337,15 @@ async function getLastTransaction(address){
 }
 
 async function getTransactionState(address, hash){
-  const tx = await getTransaction(address, hash)
-  //console.log('TX', tx)
+  const tx1 = await getTransactionV2(address, hash)
+  let tx2 = null
+  let state = false
+  if(tx1?.transaction_id?.hash){
+    tx2 = await getTransactionV3(address, tx1.transaction_id.hash)
+    state = tx2?.description?.action?.success ?? false
+  }
   //const code = tx?.description?.compute_ph?.exit_code // if !== 0 then failed
-  return tx?.description?.action?.success
+  return state
 }
 
 async function getHistory(address, limit=10){
@@ -467,7 +486,9 @@ module.exports = {
   getBalance,
   getHistory,
   getState,
-  getTransaction,
+  getTransactionV2,
+  getTransactionV3,
+  getTransactionRPC,
   getTransactionState,
   newAccount,
   sendPayment,
