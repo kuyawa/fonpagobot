@@ -208,7 +208,7 @@ async function waitForConfirmation(address, prevHash, retries=10) {
       //console.log('Tx hash', tx.hash)
       const state = await getTransactionState(address, lastHash)
       console.log('Tx State', state, lastHash)
-      if(state===undefined){ 
+      if(state===undefined){
         console.log('Tx undefined', tx)
         await sleep(5)
         continue
@@ -342,7 +342,7 @@ async function getTransactionState(address, hash){
   let state = false
   if(tx1?.transaction_id?.hash){
     tx2 = await getTransactionV3(address, tx1.transaction_id.hash)
-    state = tx2?.description?.action?.success ?? false
+    state = tx2?.description?.action?.success
   }
   //const code = tx?.description?.compute_ph?.exit_code // if !== 0 then failed
   return state
