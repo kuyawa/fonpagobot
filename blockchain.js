@@ -159,6 +159,7 @@ async function getBankWallet(){
 
 // Internal
 async function waitForBalance(address, retries=10) {
+  console.log('WAIT FOR BALANCE', address)
   let counter = 0
   while (counter < retries) {
     counter += 1
@@ -224,12 +225,13 @@ async function waitForConfirmation(address, prevHash, retries=10) {
 }
 
 async function getBalance(address){
+  console.log('GET BALANCE', address)
   const url = rpcUrl3 + 'addressInformation?address=' + address
   const result = await web.getApi(url)
   let balance = null
-  console.log('BALANCE', result)
+  console.log('RESULT', result)
   if(result) {
-    balance = (result?.balance || 0) / 10**9
+    balance = Number.parseInt(result?.balance || '0') / 10**9
   }
   console.log(address, balance)
   return balance
