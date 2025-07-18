@@ -514,16 +514,16 @@ async function sendTokens({symbol, jettonContract, receiver, amount, privateKey,
       neededInit = init
     }
 
-  // Message payload
-  let hasMessage = 0
-  let messagePayload = ''
-  if(message){
-    hasMessage = 1
-    messagePayload = beginCell()
-      .storeUint(0, 32) // 0 opcode means we have a comment
-      .storeStringTail(message ?? 'Fonpago BRL')
-      .endCell()
-  }
+    // Message payload
+    let hasMessage = 0
+    let messagePayload = beginCell().endCell()
+    if(message){
+      hasMessage = 1
+      messagePayload = beginCell()
+        .storeUint(0, 32) // 0 opcode means we have a comment
+        .storeStringTail(message)
+        .endCell()
+    }
 
     const messageBody = beginCell()
       .storeUint(0x0f8a7ea5, 32)  // opcode for jetton transfer

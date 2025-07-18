@@ -96,7 +96,7 @@ const helpEN = '*Fonpago actions*\n\n'+
 				'*pay*: send money to Fonpago users\n'+
 				'```'+
 				'  pay 100 to George\n'+
-				'  pay 150 BTC to Caroline\n'+
+				'  pay 150 BRL to Caroline\n'+
 				'  pay 200 USD to Walmart ref 123456\n'+
 				'```'+
 				'_Note: refs are useful for tracking payments to specific orders_ \n\n'+
@@ -110,22 +110,22 @@ const tradeEN = '*Trading actions*\n\n'+
 				'*price*: show currency prices\n'+
 				'```'+
 				'  price\n'+
-				'  price BTC\n'+
+				'  price BRL\n'+
 				'  price TON\n'+
 				'```\n'+
 				'*sell*: exchange assets in the market\n'+
 				'```'+
 				'  sell 100 USD (at market price)\n'+
 				'  sell 100 USD at 22\n'+
-				'  sell 200 JPY at 2500\n'+
-				'  sell 300 BTC/USD at 7500\n'+
+				'  sell 200 JPY at 130\n'+
+				'  sell 300 BRL/USD at 5\n'+
 				'```\n'+
 				'*buy*: exchange assets in the market\n'+
 				'```'+
 				'  buy 100 USD (at market price)\n'+
 				'  buy 100 USD at 20\n'+
-				'  buy 100 JPY at 2200\n'+
-				'  buy 100 BTC/USD at 7250\n'+
+				'  buy 100 JPY at 130\n'+
+				'  buy 100 BRL/USD at 5\n'+
 				'```\n'+
 				'*close*: cancel open offer by id\n'+
 				'```'+
@@ -135,7 +135,7 @@ const tradeEN = '*Trading actions*\n\n'+
 				'*book*: list orderbook for market pair\n'+
 				'```'+
 				'  book TON\n'+
-				'  book BTC/USD\n'+
+				'  book BRL/USD\n'+
 				'```\n'+
 				'*orders*: list your open offers in the market\n\n'+
 				'*trades*: list your offers in trading history'
@@ -157,7 +157,7 @@ const helpES = '*Acciones en Fonpago*\n\n'+
 				'*paga*: enviar dinero a usuarios Fonpago\n'+
 				'```'+
 				'  paga 100 a Jorge\n'+
-				'  paga 150 BTC a Carolina\n'+
+				'  paga 150 BRL a Carolina\n'+
 				'  paga 200 USD a Walmart ref 123456\n'+
 				'```'+
 				'_Nota: referencias son útiles para control de facturas_ \n\n'+
@@ -171,20 +171,20 @@ const tradeES = '*Intercambio de activos*\n\n'+
 				'*precio*: ver precio de monedas\n'+
 				'```'+
 				'  precio\n'+
-				'  precio BTC\n'+
+				'  precio BRL\n'+
 				'  precio TON\n'+
 				'```\n'+
 				'*vende*: vender activos en el mercado\n'+
 				'```'+
 				'  vende 100 USD a 22\n'+
-				'  vende 200 JPY a 2500\n'+
-				'  vende 300 BTC/USD a 7500\n'+
+				'  vende 200 JPY a 130\n'+
+				'  vende 300 BRL/USD a 5\n'+
 				'```\n'+
 				'*compra*: comprar activos en el mercado\n'+
 				'```'+
 				'  compra 100 USD a 20\n'+
-				'  compra 100 JPY a 2200\n'+
-				'  compra 100 BTC/USD a 7250\n'+
+				'  compra 100 JPY a 130\n'+
+				'  compra 100 BRL/USD a 5\n'+
 				'```\n'+
 				'*cancela*: cancelar orden abierta según número\n'+
 				'```'+
@@ -194,7 +194,7 @@ const tradeES = '*Intercambio de activos*\n\n'+
 				'*libro*: lista de ofertas en el mercado\n'+
 				'```'+
 				'  libro TON\n'+
-				'  libro BTC/USD\n'+
+				'  libro BRL/USD\n'+
 				'```\n'+
 				'*ordenes*: lista tus órdenes abiertas en el mercado\n\n'+
 				'*ventas*: lista tus órdenes ya ejecutadas\n\n'
@@ -215,7 +215,7 @@ const helpBR =  '*Ações no Fonpago*\n\n'+
 				'*paga*: enviar dinheiro para usuários do Fonpago\n'+
 				'```'+
 				'  paga 100 para Luiz\n'+
-				'  paga 150 BTC para Cristina\n'+
+				'  paga 150 BRL para Cristina\n'+
 				'  paga 200 USD para Walmart ref 123456\n'+
 				'```'+
 				'_Observação: As referências são úteis para o controle de faturas_\n\n'+
@@ -228,20 +228,20 @@ const tradeBR = '*Troca de Ativos*\n\n'+
 				'*preço*: veja o preço da moeda\n'+
 				'```'+
 				'  preço\n'+
-				'  preço BTC\n'+
+				'  preço BRL\n'+
 				'  preço TON\n'+
 				'```\n'+
 				'*vender*: vender ativos no mercado\n'+
 				'```'+
 				'  venda 100 USD a 22\n'+
-				'  venda 200 JPY a 2500\n'+
-				'  venda 300 BTC/USD a 7500\n'+
+				'  venda 200 JPY a 130\n'+
+				'  venda 300 BRL/USD a 5\n'+
 				'```\n'+
 				'*comprar*: comprar ativos no mercado\n'+
 				'```'+
 				'  compra 100 USD a 20\n'+
-				'  compra 100 JPY a 2200\n'+
-				'  compra 100 BTC/USD a 7250\n'+
+				'  compra 100 JPY a 130\n'+
+				'  compra 100 BRL/USD a 5\n'+
 				'```\n'+
 				'*cancelar*: cancelar pedido aberto por número\n'+
 				'```'+
@@ -251,7 +251,7 @@ const tradeBR = '*Troca de Ativos*\n\n'+
 				'*livro*: lista de ofertas no mercado\n'+
 				'```'+
 				'  livro TON\n'+
-				'  livro BTC/USD\n'+
+				'  livro BRL/USD\n'+
 				'```\n'+
 				'*ordens*: liste suas ordens abertas no mercado\n\n'+
 				'*vendas*: liste seus pedidos já executados\n\n'
