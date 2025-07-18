@@ -249,19 +249,19 @@ async function getPrices() {
 	let time2 = null
 
   try {
-		console.log('DB PRICES')
+		//console.log('DB PRICES')
 		dbc  = await pool.connect()
 		res1 = await dbc.query(sql1)
 		if(res1.rowCount>0) { 
 			time1 = (new Date(res1.rows[0].updated)).getTime()
 			currencies = JSON.parse(res1.rows[0].text) 
-			console.log('EUR', currencies?.EUR ?? 0)
+			//console.log('EUR', currencies?.EUR ?? 0)
 		}
 		res2 = await dbc.query(sql2)
 		if(res2.rowCount>0) { 
 			time2 = (new Date(res2.rows[0].updated)).getTime()
 			cryptos = JSON.parse(res2.rows[0].text) 
-			console.log('BTC', cryptos?.BTCUSDT ?? 0)
+			//console.log('BTC', cryptos?.BTCUSDT ?? 0)
 		}
 		const minTime = Math.min(time1,time2)
 		data = { 

@@ -83,7 +83,7 @@ async function newAccount(){
     //const ok = await client.sendExternalMessage(newWallet, tx)
     //console.log('Deployment ok', ok)
     //await client.sendExternalMessage(newWallet, transfer)
-    const deployed = await waitForStatus(receiver)
+    const deployed = await waitForStatus(receiver, 20)
     console.log('Deployed', deployed)
     if(!deployed){ return { error: 'Error deploying account', type:'deploy' } }
     return account
@@ -306,7 +306,7 @@ async function getTransactionV2(address, hash){
 // Short hash, returns description.state
 async function getTransactionV3(address, hash){
   console.log('GET TRANSACTION v3', address, hash)
-  const url = `${rpcUrl3}transactions?hash=${encodeURIComponent(hash)}&limit=1`
+  const url = `${rpcUrl3}transactions?hash=${encodeURIComponent(hash)}`
   console.log('URL v3', url)
   const info = await web.getApi(url)
   console.log('RESULT', info)
