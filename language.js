@@ -100,8 +100,10 @@ const helpEN = '*Fonpago actions*\n\n'+
 				'  pay 200 USD to Walmart ref 123456\n'+
 				'```'+
 				'_Note: refs are useful for tracking payments to specific orders_ \n\n'+
-				'@name to send messages to any user\n\n'+
-				'*help trade*: trading information\n\n'+
+				'*price* to check TON price\n\n'+
+				'*price ANY* to check any crypto/forex price by symbol\n\n'+
+				//'@name to send messages to any user\n\n'+
+				//'*help trade*: trading information\n\n'+
 				'*help*: this information'
 
 const tradeEN = '*Trading actions*\n\n'+
@@ -159,8 +161,10 @@ const helpES = '*Acciones en Fonpago*\n\n'+
 				'  paga 200 USD a Walmart ref 123456\n'+
 				'```'+
 				'_Nota: referencias son útiles para control de facturas_ \n\n'+
-				'@nombre para enviar mensajes a un usuario\n\n'+
-				'*ayuda ventas*: información en intercambio de activos\n\n'+
+				'*precio* para ver precio de TON\n\n'+
+				'*precio ANY* para ver precios de cripto/forex\n\n'+
+				//'@nombre para enviar mensajes a un usuario\n\n'+
+				//'*ayuda ventas*: información en intercambio de activos\n\n'+
 				'*ayuda*: esta información'
 
 const tradeES = '*Intercambio de activos*\n\n'+
@@ -215,7 +219,9 @@ const helpBR =  '*Ações no Fonpago*\n\n'+
 				'  paga 200 USD para Walmart ref 123456\n'+
 				'```'+
 				'_Observação: As referências são úteis para o controle de faturas_\n\n'+
-				'@nome para enviar mensagens a um usuário\n\n'+
+				'*preço* para ver o preço do TON\n\n'+
+				'*preço ANY* para ver preços de criptomoedas e forex\n\n'+
+				//'@nome para enviar mensagens a um usuário\n\n'+
 				'*ajuda*: esta informação'
 
 const tradeBR = '*Troca de Ativos*\n\n'+

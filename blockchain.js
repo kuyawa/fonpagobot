@@ -57,6 +57,8 @@ async function newAccount(){
     console.log('Funded', funded)
     if(!funded){ return { error: 'Error funding account', type:'fund' } }
 
+    // TODO: Send BRL ???
+
     // DEPLOY ACCOUNT
     const newSeq = 0
     const deployOp = internal({
@@ -485,6 +487,84 @@ async function sendPayment(data){
   }
 }
 
+// Needs ton client loaded with rpcurl and apikey
+// USE: sendTokens({symbol, jettonContract, receiver, amount, privateKey})
+async function sendTokens({symbol, jettonContract, receiver, amount, privateKey}){
+  try {
+    const client     = new TonClient({ endpoint: apiUrl, apiKey })
+    const toAddress  = Address.parse(receiver)
+    const seed       = Uint8Array.from(Buffer.from(privateKey, 'hex'))
+    const keyPair    = keyPairFromSeed(seed)
+    const secretKey  = Buffer.from(keyPair.secretKey)
+    const publicKey  = Buffer.from(keyPair.publicKey)
+    const workchain  = 0; // Usually you need a workchain 0
+    const wallet     = WalletContractV4.create({ workchain, publicKey })
+    const address    = wallet.address.toString({ urlSafe: true, bounceable: true, testOnly: true })
+    const contract   = client.open(wallet)
+    const balance    = 0
+    //const balance    = await contract.getBalance()
+    // TODO: Check if enough balance for transaction 
+    // if(Number(balance) < amount) {...}
+    const seqno      = await contract.getSeqno()
+    const { init }   = contract
+    const isDeployed = await client.isContractDeployed(Address.parse(address))
+    //console.log({ address, balance, seqno, isDeployed })
+    let neededInit   = null
+    if (init && !isDeployed) {
+      neededInit = init
+    }
+
+    // Comment payload
+    // const forwardPayload = beginCell()
+    //   .storeUint(0, 32) // 0 opcode means we have a comment
+    //   .storeStringTail('Hello, TON!')
+    //   .endCell()
+
+    const messageBody = beginCell()
+      .storeUint(0x0f8a7ea5, 32) // opcode for jetton transfer
+      .storeUint(0, 64) // query id
+      .storeCoins(toNano(amount)) // jetton amount, amount * 10^9
+      .storeAddress(toAddress)
+      .storeAddress(toAddress) // response destination
+      .storeBit(0) // no custom payload
+      .storeCoins(0) // forward amount - if > 0, will send notification message
+      .storeBit(0) // we store forwardPayload as a reference, set 1 and uncomment next line for have a comment
+      // .storeRef(forwardPayload)
+      .endCell()
+
+    const fees = '0.05' // 0.1 to be sure
+    const internalMessage = internal({
+      to: jettonContract,
+      value: toNano(fees), // base fee for jetton transfer
+      bounce: true,
+      body: messageBody,
+    })
+
+    const body = wallet.createTransfer({
+      seqno,
+      secretKey,
+      messages: [internalMessage],
+    })
+
+    const externalMessage = external({
+      to: address,
+      init: neededInit,
+      body,
+    })
+
+    const externalMessageCell = beginCell().store(storeMessage(externalMessage)).endCell()
+    const signedTransaction   = externalMessageCell.toBoc()
+    const hash = externalMessageCell.hash().toString('hex')
+    console.log('hash:', hash)
+    await client.sendFile(signedTransaction)
+    // Should we check for confirmation?
+    return {success: true, hash}
+  } catch(ex) {
+    console.error(ex)
+    return {success:false, error:ex.message}
+  }
+}
+
 module.exports = {
   generateAccount,
   getAccount,
@@ -497,5 +577,6 @@ module.exports = {
   getTransactionState,
   newAccount,
   sendPayment,
+  sendTokens,
   waitForConfirmation
 }
