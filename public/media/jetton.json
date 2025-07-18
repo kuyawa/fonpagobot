@@ -1,0 +1,7 @@
+{
+  "symbol": "BRL",
+  "name": "Brazilian Real",
+  "description": "Brazilian Real in TON Testnet",
+  "decimals": 9,
+  "image": "https://fonpagobot-5ce82c90f917.herokuapp.com/media/brl.png"
+}
