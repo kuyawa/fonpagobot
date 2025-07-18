@@ -751,14 +751,18 @@ async function sendPayment(ctx, data) {
     const secret    = sender.secret
     const asset     = parts.asset ?? CURRENCY
     //console.log({reference, source, asset})
-
     //console.log(source, secret, destin, asset, amount, ref)
     let text = ''
     let resp = {ok: false, error:'', retry: false}
       
     // PAYMENT
     console.log('Paying...', {source, destin, amount, asset, reference})
-    resp = await blockchain.sendPayment({secret, source, destin, amount, asset, message:reference}) // no wait
+    if(asset==='BRL'){
+      const jettonContract = ''
+      resp = await blockchain.sendTokens({symbol:asset, jettonContract, receiver:destin, amount, privateKey:secret, message:reference}) // no wait
+    } else {
+      resp = await blockchain.sendPayment({secret, source, destin, amount, asset, message:reference}) // no wait
+    }
     console.log('Result', resp)
     if(resp.success) {
       // Inform sender

@@ -489,7 +489,7 @@ async function sendPayment(data){
 
 // Needs ton client loaded with rpcurl and apikey
 // USE: sendTokens({symbol, jettonContract, receiver, amount, privateKey})
-async function sendTokens({symbol, jettonContract, receiver, amount, privateKey}){
+async function sendTokens({symbol, jettonContract, receiver, amount, privateKey, message}){
   try {
     const client     = new TonClient({ endpoint: apiUrl, apiKey })
     const toAddress  = Address.parse(receiver)
@@ -514,22 +514,27 @@ async function sendTokens({symbol, jettonContract, receiver, amount, privateKey}
       neededInit = init
     }
 
-    // Comment payload
-    // const forwardPayload = beginCell()
-    //   .storeUint(0, 32) // 0 opcode means we have a comment
-    //   .storeStringTail('Hello, TON!')
-    //   .endCell()
+  // Message payload
+  let hasMessage = 0
+  let messagePayload = ''
+  if(message){
+    hasMessage = 1
+    messagePayload = beginCell()
+      .storeUint(0, 32) // 0 opcode means we have a comment
+      .storeStringTail(message ?? 'Fonpago BRL')
+      .endCell()
+  }
 
     const messageBody = beginCell()
-      .storeUint(0x0f8a7ea5, 32) // opcode for jetton transfer
-      .storeUint(0, 64) // query id
+      .storeUint(0x0f8a7ea5, 32)  // opcode for jetton transfer
+      .storeUint(0, 64)           // query id
       .storeCoins(toNano(amount)) // jetton amount, amount * 10^9
-      .storeAddress(toAddress)
-      .storeAddress(toAddress) // response destination
-      .storeBit(0) // no custom payload
-      .storeCoins(0) // forward amount - if > 0, will send notification message
-      .storeBit(0) // we store forwardPayload as a reference, set 1 and uncomment next line for have a comment
-      // .storeRef(forwardPayload)
+      .storeAddress(toAddress)    // destination
+      .storeAddress(toAddress)    // response destination
+      .storeBit(0)                // no custom payload
+      .storeCoins(0)              // forward amount - if > 0, will send notification message
+      .storeBit(hasMessage)       // we store forwardPayload as a reference, set 1 and uncomment next line for have a comment
+      .storeRef(messagePayload)   // message payload
       .endCell()
 
     const fees = '0.05' // 0.1 to be sure
