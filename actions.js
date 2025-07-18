@@ -674,7 +674,7 @@ async function webPayment(sourceSecret, destinSecret, asset, amount, ref) {
 async function sendPayment(ctx, data) {
   try {
     const parts  = await parseText(data.userid, data.message, data.action)
-    if(data.message.trim().toLowerCase() == 'pay'){
+    if(data.message.trim().toLowerCase() === 'pay'){
       const help = '*pay*: send money to Paysapp users\n\n'+
         '```'+
         'pay 100 to George\n'+
@@ -758,7 +758,7 @@ async function sendPayment(ctx, data) {
     // PAYMENT
     console.log('Paying...', {source, destin, amount, asset, reference})
     if(asset==='BRL'){
-      const jettonContract = ''
+      const jettonContract = 'EQDRXnCTrcL4MgLtk7tHOL-4mgukzxL1oPOs5vG5Bc6MHAPH' // BRL
       resp = await blockchain.sendTokens({symbol:asset, jettonContract, receiver:destin, amount, privateKey:secret, message:reference}) // no wait
     } else {
       resp = await blockchain.sendPayment({secret, source, destin, amount, asset, message:reference}) // no wait
