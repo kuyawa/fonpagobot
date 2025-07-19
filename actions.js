@@ -1,6 +1,6 @@
 // TELEGRAM ACTIONS
 
-const VERSION    = '1.0'
+const VERSION    = '1.03'
 const BASEAPP    = 'telegram:'
 
 const Telegraf   = require('telegraf')
@@ -482,9 +482,13 @@ async function sayBalance(ctx, data) {
   const publicKey = await db.getPublicKey(data.userid)
   if(!publicKey){ ctx.reply(VOX.accountNotFound); return }
   const result = await blockchain.getBalance(publicKey)
+  const tokens = await blockchain.getTokenBalances(publicKey)
   if(result) {
     const balance = result.toFixed(4)
     text = `${VOX.yourBalanceIs}: *${balance} ${CURRENCY}*`
+    for(symbol in tokens){
+      text += `*${tokens[symbol]} ${symbol.toUpperCase()}*`
+    }
   } else {
     text = VOX.errorContactingServer
   }
@@ -758,7 +762,8 @@ async function sendPayment(ctx, data) {
     // PAYMENT
     console.log('Paying...', {source, destin, amount, asset, reference})
     if(asset==='BRL'){
-      const jettonContract = 'EQDRXnCTrcL4MgLtk7tHOL-4mgukzxL1oPOs5vG5Bc6MHAPH' // BRL
+      //const jettonContract = 'EQDRXnCTrcL4MgLtk7tHOL-4mgukzxL1oPOs5vG5Bc6MHAPH' // BRL CONTRACT NO
+      const jettonContract = 'EQDBHjStPWjsFPb9oP0vtgzX2Mf-XpU6v77KjUX6n59jZrX1' // BRL MASTER
       resp = await blockchain.sendTokens({symbol:asset, jettonContract, receiver:destin, amount, privateKey:secret, message:reference}) // no wait
     } else {
       resp = await blockchain.sendPayment({secret, source, destin, amount, asset, message:reference}) // no wait
@@ -793,7 +798,7 @@ async function sendPayment(ctx, data) {
         }
       })
     } else {
-      text = resp.error
+      text = 'Error: '+resp.error
       ctx.reply(text)
     }
   } catch(ex) {

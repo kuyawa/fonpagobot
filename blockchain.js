@@ -10,9 +10,9 @@ const network = process.env.NETWORK   || 'testnet'
 const netflag = (network==='testnet')
 const bankKey = process.env.BANKKEY   || ''
 const apiKey  = process.env.TONWEBKEY || ''
-const apiUrl  = network==='mainnet' ? 'https://toncenter.com/api/v2/jsonRPC' : 'https://testnet.toncenter.com/api/v2/jsonRPC'
-const rpcUrl2 = network==='mainnet' ? 'https://toncenter.com/api/v2/' : 'https://testnet.toncenter.com/api/v2/'
-const rpcUrl3 = network==='mainnet' ? 'https://toncenter.com/api/v3/' : 'https://testnet.toncenter.com/api/v3/'
+const rpcUrl  = network==='mainnet' ? 'https://toncenter.com/api/v2/jsonRPC' : 'https://testnet.toncenter.com/api/v2/jsonRPC'
+const apiUrl2 = network==='mainnet' ? 'https://toncenter.com/api/v2/' : 'https://testnet.toncenter.com/api/v2/'
+const apiUrl3 = network==='mainnet' ? 'https://toncenter.com/api/v3/' : 'https://testnet.toncenter.com/api/v3/'
 
 async function sleep(seconds=5){
   await new Promise(resolve => setTimeout(resolve, seconds * 1000))
@@ -31,7 +31,7 @@ async function newAccount(){
     const bankSeed   = Uint8Array.from(Buffer.from(bankKey, 'hex'))
     const bankPair   = keyPairFromSeed(bankSeed)
     const bankWallet = WalletContractV3R1.create({ workchain: 0, publicKey: bankPair.publicKey })
-    const client     = new TonClient({ endpoint: apiUrl, apiKey })
+    const client     = new TonClient({ endpoint: rpcUrl, apiKey })
     const banker     = client.open(bankWallet)
     const seqno      = await banker.getSeqno() || 0
     const receiver   = account.addressHex
@@ -236,9 +236,9 @@ async function waitForConfirmation(address, prevHash, retries=10) {
 
 async function getBalance(address){
   console.log('GET BALANCE', address)
-  //const url = rpcUrl3 + 'addressInformation?address=' + address
+  //const url = apiUrl3 + 'addressInformation?address=' + address
   //const result = await web.getApi(url)
-  //const url = rpcUrl2 + 'addressInformation?address=' + address
+  //const url = apiUrl2 + 'addressInformation?address=' + address
   const payload = {
     "jsonrpc": "2.0",
     "id": 1,
@@ -247,20 +247,46 @@ async function getBalance(address){
       "address": address
     }
   }
-  const result = await web.postApi(apiUrl, payload)
+  const result = await web.postApi(rpcUrl, payload)
   console.log('RESULT', result)
   let balance = null
   if(result) {
     balance = Number.parseInt(result?.result || '0') / 10**9
     //balance = Number.parseInt(result?.balance || '0') / 10**9
   }
-  console.log(address, balance)
+  //console.log(address, balance)
   return balance
+}
+
+async function getTokenBalance(address, jetton){
+  const url     = `${apiUrl3}jetton/wallets?owner_address=${address}&jetton_address=${jetton}`
+  const result  = await fetch(url)
+  const data    = await result.json()
+  const wallet  = data.jetton_wallets[0]
+  const balance = wallet.balance/10**9
+  //const meta = data.metadata[wallet.jetton].token_info[0]
+  //const symbol = meta.symbol
+  return balance
+}
+
+async function getTokenBalances(address){
+  const url     = `${apiUrl3}jetton/wallets?owner_address=${address}`
+  const result  = await fetch(url)
+  const data    = await result.json()
+  const balances = {}
+  for(wallet of data.jetton_wallets){
+    const balance = wallet.balance/10**9
+    const meta = data.metadata[wallet.jetton].token_info[0]
+    const symbol = meta.symbol
+    balances[symbol] = balance
+  }
+  //console.log(address, balances)
+  return balances
 }
 
 /*
 async function getBalances(address) {
-  const url = rpcUrl3 + 'addressInformation?address=' + address
+  const url = apiUrl3 + 'addressInformation?address=' + address
   const result = await web.getApi(url)
   const balance = (inf?.balance || 0) / 10**9
   // TODO: list assets
@@ -271,7 +297,7 @@ async function getBalances(address) {
 
 async function getAccountState(address){
   console.log('GET STATE', address)
-  //const url = rpcUrl3 + 'addressInformation?address=' + address
+  //const url = apiUrl3 + 'addressInformation?address=' + address
   //const info = await web.getApi(url)
   //const state = info.status
   //console.log(address, state)
@@ -283,7 +309,7 @@ async function getAccountState(address){
       "address": address
     }
   }
-  const result = await web.postApi(apiUrl, payload)
+  const result = await web.postApi(rpcUrl, payload)
   console.log('RESULT', result)
   let state = null
   if(result) {
@@ -296,7 +322,7 @@ async function getAccountState(address){
 // Long hash, no state
 async function getTransactionV2(address, hash){
   console.log('GET TRANSACTION v2', address, hash)
-  const url = `${rpcUrl2}getTransactions?address=${address}&hash=${hash}&limit=1`
+  const url = `${apiUrl2}getTransactions?address=${address}&hash=${hash}&limit=1`
   const info = await web.getApi(url)
   //console.log('RESULT', info)
   const tx = info.result?.[0] ?? null
@@ -308,7 +334,7 @@ async function getTransactionV2(address, hash){
 // Short hash, returns description.state
 async function getTransactionV3(address, hash){
   console.log('GET TRANSACTION v3', address, hash)
-  const url = `${rpcUrl3}transactions?hash=${encodeURIComponent(hash)}`
+  const url = `${apiUrl3}transactions?hash=${encodeURIComponent(hash)}`
   console.log('URL v3', url)
   const info = await web.getApi(url)
   console.log('RESULT', info)
@@ -319,7 +345,7 @@ async function getTransactionV3(address, hash){
 
 async function getTransactionRPC(address, hash){
   console.log('GET TRANSACTION RPC', address, hash)
-  //const url = rpcUrl3 + 'transactions?hash=' + hash
+  //const url = apiUrl3 + 'transactions?hash=' + hash
   //const info = await web.getApi(url)
   //console.log('TX', info)
   const payload = {
@@ -332,7 +358,7 @@ async function getTransactionRPC(address, hash){
       "limit": 1
     }
   }
-  const result = await web.postApi(apiUrl, payload)
+  const result = await web.postApi(rpcUrl, payload)
   const tx = result.result?.[0] ?? null
   console.log('TXR', tx)
   return tx
@@ -357,7 +383,7 @@ async function getTransactionState(address, hash){
 
 async function getHistory(address, limit=10){
   try {
-    const url  = `${rpcUrl2}getTransactions?address=${address}&limit=${limit}`
+    const url  = `${apiUrl2}getTransactions?address=${address}&limit=${limit}`
     const data = await web.getApi(url)
     //console.log('History', data.result.length)
     //console.log('History', JSON.stringify(data,null,2))
@@ -409,7 +435,7 @@ async function getContract(privateKey){
     const seed = Uint8Array.from(Buffer.from(privateKey, 'hex'))
     const keyPair = keyPairFromSeed(seed)
     const wallet = WalletContractV3R1.create({ workchain:0, publicKey:keyPair.publicKey })
-    const client = new TonClient({ endpoint: apiUrl, apiKey })
+    const client = new TonClient({ endpoint: rpcUrl, apiKey })
     const contract = client.open(wallet)
     return contract
   } catch(ex) {
@@ -443,7 +469,7 @@ async function sendPayment(data){
     if(!sender){ return {error:'Error sending payment'} }
     const wallet  = await getWallet(secret)   // sender
     //console.log('Wallet', wallet)
-    const client = new TonClient({ endpoint: apiUrl, apiKey })
+    const client = new TonClient({ endpoint: rpcUrl, apiKey })
     const contract = client.open(wallet)
     const lastTx = await getLastTransaction(source)
     const prevHash = utils.base64tohex(lastTx?.hash??'')
@@ -490,8 +516,20 @@ async function sendPayment(data){
 // Needs ton client loaded with rpcurl and apikey
 // USE: sendTokens({symbol, jettonContract, receiver, amount, privateKey})
 async function sendTokens({symbol, jettonContract, receiver, amount, privateKey, message}){
+  console.log('Sending token:', {symbol, jettonContract, receiver, amount, privateKey, message})
+  const client = new TonClient({ endpoint: rpcUrl, apiKey })
+
+  async function getUserJettonWalletAddress(userAddress, jettonMasterAddress) {
+    const userAddressCell = beginCell().storeAddress(Address.parse(userAddress)).endCell()
+    const response = await client.runMethod(Address.parse(jettonMasterAddress), 'get_wallet_address', [
+      { type: 'slice', cell: userAddressCell },
+    ])
+    const address = response.stack.readAddress()
+    console.log('Jetton Address:', address)
+    return address
+  }
+
   try {
-    const client     = new TonClient({ endpoint: apiUrl, apiKey })
     const toAddress  = Address.parse(receiver)
     const seed       = Uint8Array.from(Buffer.from(privateKey, 'hex'))
     const keyPair    = keyPairFromSeed(seed)
@@ -499,7 +537,7 @@ async function sendTokens({symbol, jettonContract, receiver, amount, privateKey,
     const publicKey  = Buffer.from(keyPair.publicKey)
     const workchain  = 0; // Usually you need a workchain 0
     const wallet     = WalletContractV4.create({ workchain, publicKey })
-    const address    = wallet.address.toString({ urlSafe: true, bounceable: true, testOnly: true })
+    const address    = wallet.address.toString({ urlSafe: true, bounceable: false, testOnly: true })
     const contract   = client.open(wallet)
     const balance    = 0
     //const balance    = await contract.getBalance()
@@ -513,6 +551,8 @@ async function sendTokens({symbol, jettonContract, receiver, amount, privateKey,
     if (init && !isDeployed) {
       neededInit = init
     }
+    const jettonWalletAddress = await getUserJettonWalletAddress(address, jettonContract)
+    //const jettonWalletAddress = jettonContract
 
     // Message payload
     let hasMessage = 0
@@ -539,7 +579,7 @@ async function sendTokens({symbol, jettonContract, receiver, amount, privateKey,
 
     const fees = '0.05' // 0.1 to be sure
     const internalMessage = internal({
-      to: jettonContract,
+      to: jettonWalletAddress,
       value: toNano(fees), // base fee for jetton transfer
       bounce: true,
       body: messageBody,
@@ -574,6 +614,8 @@ module.exports = {
   generateAccount,
   getAccount,
   getBalance,
+  getTokenBalance,
+  getTokenBalances,
   getHistory,
   getAccountState,
   getTransactionV2,
