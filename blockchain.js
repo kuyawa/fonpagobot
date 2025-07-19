@@ -1,8 +1,8 @@
 // BLOCKCHAIN
 
-const { TonClient, WalletContractV3R1, WalletContractV4, Address, internal, comment, fromNano, toNano } = require('@ton/ton')
+const { TonClient, WalletContractV3R1, WalletContractV4, Address, internal, external, comment, fromNano, toNano } = require('@ton/ton')
 const { keyPairFromSeed, mnemonicNew, mnemonicToPrivateKey } = require('@ton/crypto')
-const { beginCell, SendMode, storeMessageRelaxed } = require('@ton/core')
+const { beginCell, SendMode, storeMessage, storeMessageRelaxed } = require('@ton/core')
 const utils = require('./utils')
 const web = require('./web')
 
