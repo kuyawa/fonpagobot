@@ -19,6 +19,7 @@ const TRADING    = process.env.TRADING==='ON'
 const OPENEXKEY  = process.env.OPENEXKEY
 const INBOXKEY   = process.env.INBOXKEY
 const INBOXURL   = process.env.INBOXURL
+const JETTONBRL  = process.env.JETTONBRL
 const CURRENCY   = 'TON'
 const currencies = ['USD', 'EUR', 'JPY', 'CNY', 'INR', 'GBP', 'AUD', 'CAD', 'RUB', 'CHF', 'BRL', 'MXN']
 const cryptos    = ['BTC', 'ETH', 'XRP', 'BCH', 'LTC', 'EOS', 'BSV', 'TRX', 'ADA', 'XMR']
@@ -772,9 +773,7 @@ async function sendPayment(ctx, data) {
     // PAYMENT
     console.log('Paying...', {source, destin, amount, asset, reference})
     if(asset==='BRL'){
-      //const jettonContract = 'EQDRXnCTrcL4MgLtk7tHOL-4mgukzxL1oPOs5vG5Bc6MHAPH' // BRL CONTRACT NO
-      const jettonContract = 'EQDBHjStPWjsFPb9oP0vtgzX2Mf-XpU6v77KjUX6n59jZrX1' // BRL MASTER
-      resp = await blockchain.sendTokens({symbol:asset, jettonContract, receiver:destin, amount, privateKey:secret, message:reference}) // no wait
+      resp = await blockchain.sendTokens({symbol:asset, jettonContract:JETTONBRL, receiver:destin, amount, privateKey:secret, message:reference}) // no wait
     } else {
       resp = await blockchain.sendPayment({secret, source, destin, amount, asset, message:reference}) // no wait
     }

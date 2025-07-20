@@ -553,9 +553,9 @@ async function sendTokens({symbol, jettonContract, receiver, amount, privateKey,
     const keyPair    = keyPairFromSeed(seed)
     const secretKey  = Buffer.from(keyPair.secretKey)
     const publicKey  = Buffer.from(keyPair.publicKey)
-    const workchain  = 0; // Usually you need a workchain 0
+    const workchain  = 0 // Usually you need a workchain 0
     const wallet     = WalletContractV4.create({ workchain, publicKey })
-    const address    = wallet.address.toString({ urlSafe: true, bounceable: false, testOnly: true })
+    const address    = wallet.address.toString({ urlSafe: true, bounceable: true, testOnly: true })
     const contract   = client.open(wallet)
     const balance    = 0
     //const balance    = await contract.getBalance()
