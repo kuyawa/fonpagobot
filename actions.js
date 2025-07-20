@@ -579,8 +579,7 @@ async function sayHistory(ctx, data) {
     }
     hist.push(line)
   }
-  text = '*Last 10 transactions*\n' + '`' + hist.join('\n').replaceAll('_','-') + '`'
-
+  text = '*' + VOX.lastTransactions + '*\n' + '`' + hist.join('\n').replaceAll('_','-') + '`'
   ctx.replyWithMarkdown(text)
 }
 
@@ -596,29 +595,31 @@ async function getPrice(asset) {
     // if updated < now-1hour then get new data else use data from record
     let update = false
     let prices = await db.getPrices()
-    //console.log(prices.updated)
     //console.log('Prices: ',prices)
     if(!prices){ 
       update = true
-      prices = {currencies:[], cryptos:[]}
+      prices = { currencies:{}, cryptos:{}, updated: 0 }
       console.error('DB Error accessing prices')
     } else {
-      if(prices.updated < now-onehour){ update = true }
+      if((prices.updated ?? 0) < now-onehour){ update = true }
     }
+    const diff = now - (prices.updated ?? 0)
+    console.log('Prices last updated on', new Date(prices?.updated), ' - Now', new Date(now), ' - ', diff, (diff > onehour ? 'UPDATE' : 'NO UPDATE'))
     //console.log('Update: ',update)
     //console.log(((onehour - (now - prices.updated))/60000).toFixed(0), 'mins to update')
-    //update = true // REMOVE
+    update = true // REMOVE
 
     if(update) {
-      prices = { currencies:{}, cryptos:{} }
-      let symbol   = null
-      let price    = null
+      prices = { currencies:{}, cryptos:{}, updated: 0 }
+      let symbol = null
+      let price  = null
 
       //---- CRYPTOS
       // Fetch and save, build prices list
       //const url = 'https://api.coinmarketcap.com/v1/ticker/?limit=100'
       //const url = 'https://api.binance.com/api/v1/ticker/24hr?symbol='+asset+'USDT'
       const list1 = await web.getApi('https://api.binance.com/api/v1/ticker/24hr')
+      //console.log(list1)
       if(list1) {
         ok = true
         for(item in list1) {
@@ -627,6 +628,7 @@ async function getPrice(asset) {
           if(symbol?.endsWith('USDT')){
             const coin = symbol.substr(0, symbol.length - 4)
             prices.cryptos[coin] = price
+            //console.log(coin, price)
           }
         }
       } else {
@@ -638,6 +640,7 @@ async function getPrice(asset) {
 
       //---- CURRENCIES
       const list2 = await web.getApi('https://openexchangerates.org/api/latest.json?app_id='+OPENEXKEY)
+      //console.log(list1)
       if(list2) {
         ok = true
         for(item in list2.rates) { 
@@ -669,7 +672,7 @@ async function getPrice(asset) {
     ok = false
     price = 0
   }
-  return {ok:ok, asset:asset, price:price}
+  return {ok, asset, price}
 }
 
 async function sayPrice(ctx, data) {
