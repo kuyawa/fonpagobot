@@ -16,8 +16,8 @@ async function fetchApi(method, url, payload){
     const data = await result.json()
     return data
   } catch(ex) {
-    console.error(ex)
-    return {error: ex.message}
+    console.error(ex?.message)
+    return { error: ex?.message ?? 'Unknown' }
   }
 }
 

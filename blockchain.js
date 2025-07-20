@@ -1,6 +1,6 @@
 // BLOCKCHAIN
 
-const { TonClient, WalletContractV3R1, WalletContractV4, Address, internal, external, comment, fromNano, toNano } = require('@ton/ton')
+const { TonClient, WalletContractV4, Address, internal, external, comment, fromNano, toNano } = require('@ton/ton')
 const { keyPairFromSeed, mnemonicNew, mnemonicToPrivateKey } = require('@ton/crypto')
 const { beginCell, SendMode, storeMessage, storeMessageRelaxed } = require('@ton/core')
 const utils = require('./utils')
@@ -24,13 +24,13 @@ async function newAccount(){
     console.log('Generating account...')
     const account = await generateAccount()
     if(!account){ return { error: 'Error creating account', type:'generate' } }
-    const newWallet = WalletContractV3R1.create({ workchain: 0, publicKey: account.publicKey })
+    const newWallet = WalletContractV4.create({ workchain: 0, publicKey: account.publicKey })
 
     // FUND FROM BANK
     //const bankWallet = getBankWallet()
     const bankSeed   = Uint8Array.from(Buffer.from(bankKey, 'hex'))
     const bankPair   = keyPairFromSeed(bankSeed)
-    const bankWallet = WalletContractV3R1.create({ workchain: 0, publicKey: bankPair.publicKey })
+    const bankWallet = WalletContractV4.create({ workchain: 0, publicKey: bankPair.publicKey })
     const client     = new TonClient({ endpoint: rpcUrl, apiKey })
     const banker     = client.open(bankWallet)
     const seqno      = await banker.getSeqno() || 0
@@ -90,8 +90,8 @@ async function newAccount(){
     if(!deployed){ return { error: 'Error deploying account', type:'deploy' } }
     return account
   } catch(ex) {
-    console.error(ex)
-    return {error:ex.message}
+    console.error(ex?.message)
+    return {error:ex?.message ?? 'Unknown'}
   }
 }
 
@@ -101,7 +101,7 @@ async function generateAccount(){
     console.log('GENERATE')
     const mnemonics     = await mnemonicNew()
     const keyPair       = await mnemonicToPrivateKey(mnemonics)
-    const wallet        = WalletContractV3R1.create({ workchain: 0, publicKey: keyPair.publicKey })
+    const wallet        = WalletContractV4.create({ workchain: 0, publicKey: keyPair.publicKey })
     const address       = wallet.address
     const addressHex    = wallet.address.toString() // {urlSafe: true, testOnly:true, bounceable:false}
     const secretKey     = keyPair.secretKey
@@ -115,7 +115,7 @@ async function generateAccount(){
     console.log('Account', addressHex)
     return account
   } catch(ex) {
-    console.error(ex)
+    console.error(ex?.message)
   }
   return null
 }
@@ -130,11 +130,11 @@ async function getAccount(privateKey){
     const publicKey = Buffer.from(keyPair.publicKey).toString('hex')
     //const secretKey = Buffer.from(keyPair.secretKey).toString('hex')
     const secretKey = keyPair.secretKey
-    const wallet = WalletContractV3R1.create({ workchain:0, publicKey:keyPair.publicKey })
+    const wallet = WalletContractV4.create({ workchain:0, publicKey:keyPair.publicKey })
     const address = await wallet.address.toString()
     return { address, publicKey, privateKey, secretKey }
   } catch(ex) {
-    console.error(ex)
+    console.error(ex?.message)
   }
   return null
 }
@@ -145,7 +145,7 @@ async function getBankWallet(){
     const bankPair = keyPairFromSeed(bankSeed)
     // Create bank wallet
     // TODO: Change to v4 and move funds
-    const bankWallet = WalletContractV3R1.create({
+    const bankWallet = WalletContractV4.create({
       workchain: 0, // 0 for basechain, -1 for masterchain
       publicKey: bankPair.publicKey
     })
@@ -154,7 +154,7 @@ async function getBankWallet(){
     //console.log('Bank', bankWallet)
     return bankWallet
   } catch(ex) {
-    console.error(ex)
+    console.error(ex?.message)
   }
   return null
 }
@@ -424,7 +424,7 @@ async function getHistory(address, limit=10){
     //console.log(info)
     return info
   } catch(ex) {
-    console.error(ex)
+    console.error(ex?.message)
   }
   return null
 }
@@ -434,12 +434,12 @@ async function getContract(privateKey){
   try {
     const seed = Uint8Array.from(Buffer.from(privateKey, 'hex'))
     const keyPair = keyPairFromSeed(seed)
-    const wallet = WalletContractV3R1.create({ workchain:0, publicKey:keyPair.publicKey })
+    const wallet = WalletContractV4.create({ workchain:0, publicKey:keyPair.publicKey })
     const client = new TonClient({ endpoint: rpcUrl, apiKey })
     const contract = client.open(wallet)
     return contract
   } catch(ex) {
-    console.error(ex)
+    console.error(ex?.message)
     return null
   }
 }
@@ -448,10 +448,10 @@ async function getWallet(privateKey){
   try {
     const seed = Uint8Array.from(Buffer.from(privateKey, 'hex'))
     const keyPair = keyPairFromSeed(seed)
-    const wallet = WalletContractV3R1.create({ workchain:0, publicKey:keyPair.publicKey })
+    const wallet = WalletContractV4.create({ workchain:0, publicKey:keyPair.publicKey })
     return wallet
   } catch(ex) {
-    console.error(ex)
+    console.error(ex?.message)
     return null
   }
 }
@@ -507,8 +507,8 @@ async function sendPayment(data){
     }
     //// TODO: parse tx and send id, time, etc
     return {success: sent, confirmed, prevHash}
-  } catch (error) {
-    console.log('Error', error)
+  } catch (ex) {
+    console.error(ex?.message)
     return {success: false, confirmed: false, error: error.message}
   }
 }
@@ -605,7 +605,7 @@ async function sendTokens({symbol, jettonContract, receiver, amount, privateKey,
     // Should we check for confirmation?
     return {success: true, hash}
   } catch(ex) {
-    console.error(ex)
+    console.error(ex?.message)
     return {success:false, error:ex.message}
   }
 }

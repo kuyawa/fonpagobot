@@ -74,7 +74,6 @@ async function getAccount(userId) {
 	} finally {
   	if (dbc) { dbc.release() }
 	}
-	
 	return data
 }
 

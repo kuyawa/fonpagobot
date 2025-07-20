@@ -1,6 +1,6 @@
 // TELEGRAM ACTIONS
 
-const VERSION    = '1.03'
+const VERSION    = '1.04'
 const BASEAPP    = 'telegram:'
 
 const Telegraf   = require('telegraf')
@@ -313,8 +313,13 @@ async function sayRegister(ctx, data) {
   
   // Check account does not exist
   let account = null
-  try { account = await db.getAccount(data.userid) }
-  catch(ex) { console.log(ex); ctx.reply(VOX.errorAccessingDatabase); return }
+  try {
+    account = await db.getAccount(data.userid)
+  } catch(ex) {
+    console.log(ex?.message)
+    ctx.reply(VOX.errorAccessingDatabase)
+    return
+  }
   if (account!==null) { 
     if(account.usercase===name.toLowerCase()){ 
       ctx.reply(VOX.alreadyRegisteredWelcome.parse(account.username))
@@ -379,7 +384,7 @@ async function sayRegister(ctx, data) {
     recId = await db.newAccount(record)
     console.log('ID', recId)
   } catch(ex) {
-    console.error(ex)
+    console.error(ex?.message)
     ctx.reply(VOX.errorOpening)
     return
   }
@@ -427,8 +432,13 @@ async function sayName(ctx, data) {
   
   // Check account does exist
   let account = null
-  try { account = await db.getAccount(data.userid) }
-  catch(ex) { console.log(ex); ctx.reply(VOX.errorAccessing); return }
+  try {
+    account = await db.getAccount(data.userid)
+  } catch(ex) {
+    console.error(ex?.message)
+    ctx.reply(VOX.errorAccessing)
+    return
+  }
   if (account==null) { ctx.reply(VOX.accountNotFound); return }
 
   // If no name to set, then show current name
@@ -485,9 +495,9 @@ async function sayBalance(ctx, data) {
   const tokens = await blockchain.getTokenBalances(publicKey)
   if(result) {
     const balance = result.toFixed(4)
-    text = `${VOX.yourBalanceIs}: *${balance} ${CURRENCY}*`
+    text = `${VOX.yourBalanceIs}:\n*${balance} ${CURRENCY}*`
     for(symbol in tokens){
-      text += `*${tokens[symbol]} ${symbol.toUpperCase()}*`
+      text += `\n*${tokens[symbol]} ${symbol.toUpperCase()}*`
     }
   } else {
     text = VOX.errorContactingServer
@@ -651,7 +661,7 @@ async function getPrice(asset) {
     }
     ok = true
   } catch (ex) {
-    console.error("Price ERROR:", ex)
+    console.error("Price ERROR:", ex?.message)
     ok = false
     price = 0
   }
@@ -720,7 +730,7 @@ async function sendPayment(ctx, data) {
     //console.log('Payment to '+receiver)
 
     const sender = await db.getAccount(parts.sender)
-    //console.log({sender})
+    console.log({sender})
     //console.log(sender)
     if(!sender){ 
       console.error('Sender not found '+parts.sender) 
@@ -802,7 +812,7 @@ async function sendPayment(ctx, data) {
       ctx.reply(text)
     }
   } catch(ex) {
-    console.error(ex)
+    console.error(ex?.message)
     ctx.reply('Error sending payment')
   }
 }
@@ -821,14 +831,27 @@ async function saySomething(ctx, data) {
   const message  = words.slice(1).join(' ')
 
   let source = null
-  try { source = await db.getAccount(data.userid) }
-  catch(ex) { console.log(ex); ctx.reply(VOX.errorAccessingDatabase); return }
+  try {
+    source = await db.getAccount(data.userid)
+  } catch(ex) {
+    console.error(ex?.message)
+    ctx.reply(VOX.errorAccessingDatabase)
+    return
+  }
   if (source==null) { ctx.reply(VOX.errorAccessing); return }
   
   let destin = null
-  try { destin = await db.getAccountByName(receiver) }
-  catch(ex) { console.log(ex); ctx.reply(VOX.errorAccessingDatabase); return }
-  if (destin==null) { ctx.reply(VOX.destinationNotFound); return }
+  try {
+    destin = await db.getAccountByName(receiver)
+  } catch(ex) {
+    console.error(ex?.message)
+    ctx.reply(VOX.errorAccessingDatabase)
+    return
+  }
+  if (destin==null) {
+    ctx.reply(VOX.destinationNotFound)
+    return
+  }
   
   const msg = `${source.username}: ${message}` 
   const app = destin.userid.split(':')[0]
