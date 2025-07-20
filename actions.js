@@ -1,6 +1,6 @@
 // TELEGRAM ACTIONS
 
-const VERSION    = '1.04'
+const VERSION    = '1.05'
 const BASEAPP    = 'telegram:'
 
 const Telegraf   = require('telegraf')

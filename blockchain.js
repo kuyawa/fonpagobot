@@ -223,18 +223,18 @@ async function waitForConfirmation(address, prevHash, retries=10) {
     const tx = await getLastTransaction(address)
     const lastHash = utils.base64tohex(tx?.hash||'')
     // compare if last tx is still prev-hash until we get new-hash
-    console.log('Tx hash', lastHash)
+    //console.log('Tx hash', lastHash)
     if(lastHash!==prevHash){
       const tx2 = await getTransactionV2(address, lastHash)
       const hash2 = tx2?.transaction_id?.hash
-      console.log('Tx hash2', hash2)
+      //console.log('Tx hash2', hash2)
       while (counter < retries) {
         counter += 1
         console.log('TRY STATE', counter)
         const state = await getTransactionState(address, hash2)
-        console.log('Tx State', state, hash2)
+        //console.log('Tx State', state, hash2)
         if(state===undefined){
-          console.log('Tx undefined', tx2)
+          //console.log('Tx undefined', tx2)
           await sleep(5)
           continue
         }
@@ -339,30 +339,30 @@ async function getAccountState(address){
 
 // Long hash, no state
 async function getTransactionV2(address, hash){
-  console.log('GET TRANSACTION v2', address, hash)
+  //console.log('GET TRANSACTION v2', address, hash)
   const url = `${apiUrl2}getTransactions?address=${address}&hash=${hash}&limit=1`
   const info = await web.getApi(url)
   //console.log('RESULT', info)
   const tx = info.result?.[0] ?? null
   //const tx = info.transactions?.[0] ?? null
-  console.log('TX2', tx)
+  //console.log('TX2', tx)
   return tx
 }
 
 // Short hash, returns description.state
 async function getTransactionV3(address, hash){
-  console.log('GET TRANSACTION v3', address, hash)
+  //console.log('GET TRANSACTION v3', address, hash)
   const url = `${apiUrl3}transactions?hash=${encodeURIComponent(hash)}`
-  console.log('URL v3', url)
+  //console.log('URL v3', url)
   const info = await web.getApi(url)
-  console.log('RESULT', info)
+  //console.log('RESULT', info)
   const tx = info.transactions?.[0] ?? null
-  console.log('TX3', tx)
+  //console.log('TX3', tx)
   return tx
 }
 
 async function getTransactionRPC(address, hash){
-  console.log('GET TRANSACTION RPC', address, hash)
+  //console.log('GET TRANSACTION RPC', address, hash)
   //const url = apiUrl3 + 'transactions?hash=' + hash
   //const info = await web.getApi(url)
   //console.log('TX', info)
@@ -378,7 +378,7 @@ async function getTransactionRPC(address, hash){
   }
   const result = await web.postApi(rpcUrl, payload)
   const tx = result.result?.[0] ?? null
-  console.log('TXR', tx)
+  //console.log('TXR', tx)
   return tx
 }
 
@@ -390,12 +390,12 @@ async function getLastTransaction(address){
 
 // Short base64 hash
 async function getTransactionState(address, hash){
-  console.log('GET TRANSACTION STATE', address, hash)
+  //console.log('GET TRANSACTION STATE', address, hash)
   const tx = await getTransactionV3(address, hash)
-  console.log('TX', tx)
+  //console.log('TX', tx)
   const state = tx?.description?.action?.success
   //const code = tx?.description?.compute_ph?.exit_code // if !== 0 then failed
-  console.log('STATE', state)
+  //console.log('STATE', state)
   return state
 }
 
