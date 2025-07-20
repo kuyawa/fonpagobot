@@ -6,13 +6,14 @@ const { beginCell, SendMode, storeMessage, storeMessageRelaxed } = require('@ton
 const utils = require('./utils')
 const web = require('./web')
 
-const network = process.env.NETWORK   || 'testnet'
-const netflag = (network==='testnet')
-const bankKey = process.env.BANKKEY   || ''
-const apiKey  = process.env.TONWEBKEY || ''
-const rpcUrl  = network==='mainnet' ? 'https://toncenter.com/api/v2/jsonRPC' : 'https://testnet.toncenter.com/api/v2/jsonRPC'
-const apiUrl2 = network==='mainnet' ? 'https://toncenter.com/api/v2/' : 'https://testnet.toncenter.com/api/v2/'
-const apiUrl3 = network==='mainnet' ? 'https://toncenter.com/api/v3/' : 'https://testnet.toncenter.com/api/v3/'
+const network  = process.env.NETWORK   || 'testnet'
+const netflag  = (network==='testnet')
+const bankKey  = process.env.BANKKEY   || ''
+const apiKey   = process.env.TONWEBKEY || ''
+const rpcUrl   = network==='mainnet' ? 'https://toncenter.com/api/v2/jsonRPC' : 'https://testnet.toncenter.com/api/v2/jsonRPC'
+const apiUrl2  = network==='mainnet' ? 'https://toncenter.com/api/v2/' : 'https://testnet.toncenter.com/api/v2/'
+const apiUrl3  = network==='mainnet' ? 'https://toncenter.com/api/v3/' : 'https://testnet.toncenter.com/api/v3/'
+const tokenBRL = process.env.BRLMASTER
 
 async function sleep(seconds=5){
   await new Promise(resolve => setTimeout(resolve, seconds * 1000))
@@ -31,6 +32,7 @@ async function newAccount(){
     const bankSeed   = Uint8Array.from(Buffer.from(bankKey, 'hex'))
     const bankPair   = keyPairFromSeed(bankSeed)
     const bankWallet = WalletContractV4.create({ workchain: 0, publicKey: bankPair.publicKey })
+    console.log('Bank', bankWallet.address.toString())
     const client     = new TonClient({ endpoint: rpcUrl, apiKey })
     const banker     = client.open(bankWallet)
     const seqno      = await banker.getSeqno() || 0
@@ -39,7 +41,7 @@ async function newAccount(){
     const message    = 'Funds'
     //console.log('Bank', bankWallet.address.toString())
     const operation = internal({
-      to:     receiver,  // Receiver address
+      to:     receiver,    // Receiver address
       value:  amount,      // Amount of TON, attached to transfer
       body:   message,     // Transfer will contain comment
       bounce: false        // True for contracts, false for wallets
@@ -57,16 +59,14 @@ async function newAccount(){
     console.log('Funded', funded)
     if(!funded){ return { error: 'Error funding account', type:'fund' } }
 
-    // TODO: Send BRL ???
-
     // DEPLOY ACCOUNT
     const newSeq = 0
     const deployOp = internal({
       to: receiver,
-      value: '0.02',      // TON amount for deployment
+      value: '0.01',      // TON amount for deployment
       init: newWallet.init,
-      //body: beginCell().endCell(), // Empty body
-      body: 'Active',
+      body: beginCell().endCell(), // Empty body
+      //body: 'Active',
       bounce: false
     })
     const deployTx = {
@@ -88,6 +88,17 @@ async function newAccount(){
     const deployed = await waitForStatus(receiver, 20)
     console.log('Deployed', deployed)
     if(!deployed){ return { error: 'Error deploying account', type:'deploy' } }
+    
+    // Send 100 BRL
+    const sent = await sendTokens({
+      amount: '100',
+      symbol: 'BRL',
+      jettonContract: tokenBRL,
+      receiver,
+      privateKey: bankKey,
+      message: ''
+    })
+
     return account
   } catch(ex) {
     console.error(ex?.message)
@@ -98,22 +109,29 @@ async function newAccount(){
 // Internal
 async function generateAccount(){
   try {
-    console.log('GENERATE')
-    const mnemonics     = await mnemonicNew()
-    const keyPair       = await mnemonicToPrivateKey(mnemonics)
-    const wallet        = WalletContractV4.create({ workchain: 0, publicKey: keyPair.publicKey })
-    const address       = wallet.address
-    const addressHex    = wallet.address.toString() // {urlSafe: true, testOnly:true, bounceable:false}
-    const secretKey     = keyPair.secretKey
-    const publicKey     = keyPair.publicKey
-    const halfKey       = keyPair.secretKey.slice(0, 32)
-    const privateKey    = halfKey
-    const publicKeyHex  = Buffer.from(keyPair.publicKey).toString('hex')
-    const privateKeyHex = Buffer.from(halfKey).toString('hex')
-    const secretKeyHex  = Buffer.from(keyPair.secretKey).toString('hex')
-    const account = { address, addressHex, publicKey, privateKey, secretKey, publicKeyHex, privateKeyHex, secretKeyHex }
-    console.log('Account', addressHex)
-    return account
+    let counter = 0
+    while(counter < 100){
+      counter += 1
+      const mnemonics     = await mnemonicNew()
+      const keyPair       = await mnemonicToPrivateKey(mnemonics)
+      const wallet        = WalletContractV4.create({ workchain: 0, publicKey: keyPair.publicKey })
+      const address       = wallet.address
+      const addressHex    = wallet.address.toString() // {urlSafe: true, testOnly:true, bounceable:false}
+      if(addressHex.indexOf('-')>-1 || addressHex.indexOf('_')>-1){ // I hate them
+        //console.log('Bad address:', addressHex)
+        continue
+      }
+      const secretKey     = keyPair.secretKey
+      const publicKey     = keyPair.publicKey
+      const halfKey       = keyPair.secretKey.slice(0, 32)
+      const privateKey    = halfKey
+      const publicKeyHex  = Buffer.from(keyPair.publicKey).toString('hex')
+      const privateKeyHex = Buffer.from(halfKey).toString('hex')
+      const secretKeyHex  = Buffer.from(keyPair.secretKey).toString('hex')
+      const account = { address, addressHex, publicKey, privateKey, secretKey, publicKeyHex, privateKeyHex, secretKeyHex }
+      console.log('Account', addressHex)
+      return account
+    }
   } catch(ex) {
     console.error(ex?.message)
   }
@@ -167,7 +185,7 @@ async function waitForBalance(address, retries=10) {
     counter += 1
     console.log('TRY BALANCE', counter)
     const balance = await getBalance(address)
-    console.log('> BALANCE', balance)
+    //console.log('> BALANCE', balance)
     if (balance > 0) {
       console.log('Balance detected:', balance, 'TON')
       return true
@@ -235,7 +253,7 @@ async function waitForConfirmation(address, prevHash, retries=10) {
 }
 
 async function getBalance(address){
-  console.log('GET BALANCE', address)
+  //console.log('GET BALANCE', address)
   //const url = apiUrl3 + 'addressInformation?address=' + address
   //const result = await web.getApi(url)
   //const url = apiUrl2 + 'addressInformation?address=' + address
@@ -248,7 +266,7 @@ async function getBalance(address){
     }
   }
   const result = await web.postApi(rpcUrl, payload)
-  console.log('RESULT', result)
+  //console.log('RESULT', result)
   let balance = null
   if(result) {
     balance = Number.parseInt(result?.result || '0') / 10**9
@@ -296,7 +314,7 @@ async function getBalances(address) {
 */
 
 async function getAccountState(address){
-  console.log('GET STATE', address)
+  //console.log('GET STATE', address)
   //const url = apiUrl3 + 'addressInformation?address=' + address
   //const info = await web.getApi(url)
   //const state = info.status
@@ -310,12 +328,12 @@ async function getAccountState(address){
     }
   }
   const result = await web.postApi(rpcUrl, payload)
-  console.log('RESULT', result)
+  //console.log('RESULT', result)
   let state = null
   if(result) {
     state = result.result // active
   }
-  console.log(address, state)
+  //console.log(address, state)
   return state
 }
 
@@ -544,13 +562,18 @@ async function sendTokens({symbol, jettonContract, receiver, amount, privateKey,
     // TODO: Check if enough balance for transaction 
     // if(Number(balance) < amount) {...}
     const seqno      = await contract.getSeqno()
-    const { init }   = contract
     const isDeployed = await client.isContractDeployed(Address.parse(address))
     //console.log({ address, balance, seqno, isDeployed })
-    let neededInit   = null
-    if (init && !isDeployed) {
-      neededInit = init
+    if(!isDeployed){
+      console.log('Account not deployed', address)
+      return {success:false, error:'Account not deployed'}
     }
+
+    const neededInit = null
+    //const { init } = contract
+    //if (init && !isDeployed) {
+    //  neededInit = init
+    //}
     const jettonWalletAddress = await getUserJettonWalletAddress(address, jettonContract)
     //const jettonWalletAddress = jettonContract
 
