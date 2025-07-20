@@ -487,7 +487,6 @@ async function sayName(ctx, data) {
   ctx.reply(text)
 }
 
-// Get account balance
 async function sayBalance(ctx, data) {
   let text = ''
   const publicKey = await db.getPublicKey(data.userid)
@@ -507,8 +506,6 @@ async function sayBalance(ctx, data) {
 }
 
 async function sayHistory(ctx, data) {
-  //ctx.reply('History not available yet'); return;
-
   let text = ''
   const address = await db.getPublicKey(data.userid)
   if(!address){ 
@@ -518,7 +515,7 @@ async function sayHistory(ctx, data) {
   }
 
   const recs = await blockchain.getHistory(address)
-  //console.log(data)
+  //console.log(recs)
   const info = {history:[], text:[], error:null}
 
   for (let i=0; i<recs.length; i++) {
@@ -557,9 +554,15 @@ async function sayHistory(ctx, data) {
   for (line=0; line<info.history.length; line++){
     list.push(info.history[line].address)
   }
+  //console.log('LIST', list)
   const users = await db.getUsersByAccount(list)
+  //console.log('USERS', users)
   const accts = {}
-  for (line=0; line<users.length; line++) { accts[users[line].account] = users[line].username; }
+  if(users && users?.length>0){
+    for (line=0; line<users.length; line++) {
+      accts[users[line].account] = users[line].username
+    }
+  }
   const hist = []
   for (let rec=0; rec<info.history.length; rec++) { 
     item = info.history[rec]

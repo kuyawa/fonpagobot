@@ -414,6 +414,7 @@ async function getHistory(address, limit=10){
       // if !out_msgs is receipt
       // if fees = 0 is new account
       // if extra_currencies is token
+      //console.log(it.in_msg?.value)
       if(it?.out_msgs?.length>0){
         return {
           time: new Date(it.utime*1000),
@@ -427,6 +428,19 @@ async function getHistory(address, limit=10){
           message: it.out_msgs?.[0]?.message ?? ''
         }
       }
+      if(it?.in_msg?.value!=='0'){
+        return {
+          time: new Date(it.utime*1000),
+          hash: it.transaction_id?.hash, 
+          //state: it.description?.action?.success,
+          //fees: {base: it.fee||0, storage: it.storage_fee||0, other: it.other_fee||0 },
+          fees: Number.parseInt(it.fee||'0') +  Number.parseInt(it.storage_fee||'0') + Number.parseInt(it.other_fee||'0'),
+          from: it.in_msg?.source ?? '', 
+          to: it.in_msg?.destination ?? '', 
+          value: (it.in_msg?.value ?? 0) / 10**9,
+          message: it.in_msg?.message ?? ''
+        }
+      }
       return {
         time: new Date(it.utime*1000),
         hash: it.transaction_id?.hash, 
@@ -435,8 +449,8 @@ async function getHistory(address, limit=10){
         fees: Number.parseInt(it.fee||'0') +  Number.parseInt(it.storage_fee||'0') + Number.parseInt(it.other_fee||'0'),
         from: it.in_msg?.source ?? '', 
         to: it.in_msg?.destination ?? '', 
-        value: (it.in_msg?.value ?? 0) / 10**9,
-        message: it.in_msg?.message ?? ''
+        value: 0,
+        message: 'Error'
       }
     })
     //console.log(info)
