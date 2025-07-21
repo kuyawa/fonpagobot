@@ -10,6 +10,10 @@ Telegram is the most used messaging app in the world with more than a billion pe
 
 ![Webshot](public/media/webshot.jpg)
 
+## How to use it?
+
+Just search for Fonpago bot in Telegram and send `register JohnDoe` to open your account and start receiving money as easy as `pay 100 to JohnDoe`
+
 Here is a list of things you can do with FonpagoBot:
 
 ```
@@ -78,3 +82,8 @@ Aqui está uma lista de coisas que você pode fazer:
 
   ajuda: esta informação
 ```
+
+## Roadmap:
+
+Fonpagobot is in constant development, in the future it will allow users to exchange crypto currencies easily
+
