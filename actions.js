@@ -361,7 +361,7 @@ async function sayRegister(ctx, data) {
   text = VOX.newAccount
   ctx.reply(text)
 
-  console.log('Registering account...')
+  //console.log('Registering account...')
   const result = await blockchain.newAccount()
   //console.log('Result', result)
 

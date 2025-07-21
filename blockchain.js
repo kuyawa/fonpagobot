@@ -37,7 +37,8 @@ async function newAccount(){
     const banker     = client.open(bankWallet)
     const seqno      = await banker.getSeqno() || 0
     const receiver   = account.addressHex
-    const amount     = '0.025'
+    const amount     = '1'
+    //const amount     = '0.025'
     const message    = 'Funds'
     //console.log('Bank', bankWallet.address.toString())
     const operation = internal({
@@ -90,6 +91,7 @@ async function newAccount(){
     if(!deployed){ return { error: 'Error deploying account', type:'deploy' } }
     
     // Send 100 BRL
+    console.log('Funding 100 BRL')
     const sent = await sendTokens({
       amount: '100',
       symbol: 'BRL',
