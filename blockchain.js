@@ -32,7 +32,7 @@ async function newAccount(){
     const bankSeed   = Uint8Array.from(Buffer.from(bankKey, 'hex'))
     const bankPair   = keyPairFromSeed(bankSeed)
     const bankWallet = WalletContractV4.create({ workchain: 0, publicKey: bankPair.publicKey })
-    console.log('Bank', bankWallet.address.toString())
+    //console.log('Bank', bankWallet.address.toString())
     const client     = new TonClient({ endpoint: rpcUrl, apiKey })
     const banker     = client.open(bankWallet)
     const seqno      = await banker.getSeqno() || 0
@@ -183,10 +183,10 @@ async function waitForBalance(address, retries=10) {
   let counter = 0
   while (counter < retries) {
     counter += 1
-    console.log('TRY BALANCE', counter)
+    //console.log('TRY BALANCE', counter)
     const balance = await getBalance(address)
-    //console.log('> BALANCE', balance)
     if (balance > 0) {
+      console.log('TRY BALANCE', counter)
       console.log('Balance detected:', balance, 'TON')
       return true
     }
@@ -203,8 +203,9 @@ async function waitForStatus(address, retries=10) {
   while (counter < retries) {
     counter += 1
     const state = await getAccountState(address)
-    console.log('TRY STATUS', counter, state)
+    //console.log('TRY STATUS', counter, state)
     if (state==='active') {
+      console.log('TRY STATUS', counter, state)
       console.log('Account activated!')
       return true
     }
@@ -219,7 +220,7 @@ async function waitForConfirmation(address, prevHash, retries=10) {
   let counter = 0
   while (counter < retries) {
     counter += 1
-    console.log('TRY CONFIRM', counter)
+    //console.log('TRY CONFIRM', counter)
     const tx = await getLastTransaction(address)
     const lastHash = utils.base64tohex(tx?.hash||'')
     // compare if last tx is still prev-hash until we get new-hash
@@ -230,7 +231,7 @@ async function waitForConfirmation(address, prevHash, retries=10) {
       //console.log('Tx hash2', hash2)
       while (counter < retries) {
         counter += 1
-        console.log('TRY STATE', counter)
+        //console.log('TRY STATE', counter)
         const state = await getTransactionState(address, hash2)
         //console.log('Tx State', state, hash2)
         if(state===undefined){
@@ -239,6 +240,7 @@ async function waitForConfirmation(address, prevHash, retries=10) {
           continue
         }
         if(state===true) {
+          console.log('TRY STATE', counter)
           console.log('Tx confirmed')
           return true
         }
@@ -548,7 +550,8 @@ async function sendPayment(data){
 // Needs ton client loaded with rpcurl and apikey
 // USE: sendTokens({symbol, jettonContract, receiver, amount, privateKey})
 async function sendTokens({symbol, jettonContract, receiver, amount, privateKey, message}){
-  console.log('Sending token:', {symbol, jettonContract, receiver, amount, privateKey, message})
+  //console.log('Sending', amount, symbol, 'to', receiver)
+  //console.log('Sending token:', {symbol, jettonContract, receiver, amount, privateKey, message})
   const client = new TonClient({ endpoint: rpcUrl, apiKey })
 
   async function getUserJettonWalletAddress(userAddress, jettonMasterAddress) {
@@ -557,7 +560,7 @@ async function sendTokens({symbol, jettonContract, receiver, amount, privateKey,
       { type: 'slice', cell: userAddressCell },
     ])
     const address = response.stack.readAddress()
-    console.log('Jetton Address:', address)
+    //console.log('Jetton Address:', address)
     return address
   }
 

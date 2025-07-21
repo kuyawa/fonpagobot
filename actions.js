@@ -379,11 +379,11 @@ async function sayRegister(ctx, data) {
     secret:   result.privateKeyHex,
     network:  network
   }
-  console.log('RECORD', record.userid)
+  //console.log('RECORD', record.userid)
   let recId = 0
   try {
     recId = await db.newAccount(record)
-    console.log('ID', recId)
+    //console.log('ID', recId)
   } catch(ex) {
     console.error(ex?.message)
     ctx.reply(VOX.errorOpening)
@@ -596,7 +596,7 @@ async function getPrice(asset) {
     let update = false
     let prices = await db.getPrices()
     //console.log('DB PRICES:', prices)
-    console.log('DB PRICES:', Object.keys(prices?.cryptos??{}).length ?? 0, Object.keys(prices?.currencies??{}).length ?? 0, prices?.updated)
+    //console.log('DB PRICES:', Object.keys(prices?.cryptos??{}).length ?? 0, Object.keys(prices?.currencies??{}).length ?? 0, prices?.updated)
     if(!prices){ 
       update = true
       prices = { currencies:{}, cryptos:{}, updated: 0 }
@@ -605,13 +605,13 @@ async function getPrice(asset) {
       if((prices.updated ?? 0) < now-onehour){ update = true }
     }
     const diff = now - (prices.updated ?? 0)
-    console.log('Prices last updated on', new Date(prices?.updated), ' - Now', new Date(now), ' - ', diff, (diff > onehour ? 'UPDATE' : 'NO UPDATE'))
+    //console.log('Prices last updated on', new Date(prices?.updated), ' - Now', new Date(now), ' - ', diff, (diff > onehour ? 'UPDATE' : 'NO UPDATE'))
     //console.log('Update: ',update)
     //console.log(((onehour - (now - prices.updated))/60000).toFixed(0), 'mins to update')
     //update = true // REMOVE
 
     if(update) {
-      console.log('UPDATE')
+      //console.log('UPDATE')
       prices = { currencies:{}, cryptos:{}, updated: 0 }
       let symbol = null
       let price  = null
@@ -653,7 +653,7 @@ async function getPrice(asset) {
           }
           ok = await db.saveText('cryptos', JSON.stringify(prices.cryptos))
         } else {
-         console.error("PRICE CRYPTO NO JSON")
+         //console.error("PRICE CRYPTO NO JSON")
          ok = false
          //prices.cryptos = {}
         }
@@ -663,7 +663,7 @@ async function getPrice(asset) {
 
       //---- CURRENCIES
       const list2 = await web.getApi('https://openexchangerates.org/api/latest.json?app_id='+OPENEXKEY)
-      console.log('Currencies', Object.keys(list2?.rates ?? {}).length ?? 0)
+      //console.log('Currencies', Object.keys(list2?.rates ?? {}).length ?? 0)
       if(list2) {
         ok = true
         for(item in list2.rates) { 
@@ -672,7 +672,7 @@ async function getPrice(asset) {
           prices.currencies[symbol] = price
         }
       } else {
-        console.error("PRICE CURRENCY NO JSON")
+        //console.error("PRICE CURRENCY NO JSON")
         ok = false
         //prices.currencies = {}
       }
@@ -680,7 +680,7 @@ async function getPrice(asset) {
       //console.log(prices)
       ok = await db.saveText('currencies', JSON.stringify(prices.currencies))
     } else {
-      console.log('NO UPDATE')
+      //console.log('NO UPDATE')
     }
 
     price = prices.currencies[asset]
@@ -688,7 +688,7 @@ async function getPrice(asset) {
     if (!price){
       const market = asset //+'USDT' // TODO: market pair any/any
       price = prices.cryptos[market]
-      console.log('PRICE', market, price)
+      //console.log('PRICE', market, price)
     }
     ok = true
   } catch (ex) {
@@ -761,7 +761,7 @@ async function sendPayment(ctx, data) {
     //console.log('Payment to '+receiver)
 
     const sender = await db.getAccount(parts.sender)
-    console.log({sender})
+    //console.log({sender})
     //console.log(sender)
     if(!sender){ 
       console.error('Sender not found '+parts.sender) 
@@ -801,13 +801,13 @@ async function sendPayment(ctx, data) {
     let resp = {ok: false, error:'', retry: false}
       
     // PAYMENT
-    console.log('Paying...', {source, destin, amount, asset, reference})
+    console.log('Paying', amount, asset, 'to', destin)
     if(asset==='BRL'){
       resp = await blockchain.sendTokens({symbol:asset, jettonContract:JETTONBRL, receiver:destin, amount, privateKey:secret, message:reference}) // no wait
     } else {
       resp = await blockchain.sendPayment({secret, source, destin, amount, asset, message:reference}) // no wait
     }
-    console.log('Result', resp)
+    //console.log('Result', resp)
     if(resp.success) {
       // Inform sender
       text = VOX.paymentSentNotConfirmed
@@ -823,7 +823,7 @@ async function sendPayment(ctx, data) {
       } else {
         //sendExternal(INBOXURL, INBOXKEY, app, sender.userid, sender.username, rcvacct.userid, rcvacct.username, msg)
       }
-      console.log('--Done')
+      //console.log('--Done')
 
       // Wait for confirmation
       blockchain.waitForConfirmation(source, resp.prevHash).then(ok=>{
@@ -838,6 +838,7 @@ async function sendPayment(ctx, data) {
       })
     } else {
       text = 'Error: '+resp.error
+      console.error(text)
       ctx.reply(text)
     }
   } catch(ex) {
