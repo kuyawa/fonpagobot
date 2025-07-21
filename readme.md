@@ -12,7 +12,7 @@ Telegram is the most used messaging app in the world with more than a billion pe
 
 ## How to use it?
 
-Just search for Fonpago bot in Telegram and send `register JohnDoe` to open your account and start receiving money as easy as `pay 100 to JohnDoe`
+Just search for `@Fonpagobot` in Telegram and send `register JohnDoe` to open your account and start receiving money as easy as `pay 100 to JohnDoe`
 
 Here is a list of things you can do with FonpagoBot:
 
