@@ -608,7 +608,7 @@ async function getPrice(asset) {
     console.log('Prices last updated on', new Date(prices?.updated), ' - Now', new Date(now), ' - ', diff, (diff > onehour ? 'UPDATE' : 'NO UPDATE'))
     //console.log('Update: ',update)
     //console.log(((onehour - (now - prices.updated))/60000).toFixed(0), 'mins to update')
-    update = true // REMOVE
+    //update = true // REMOVE
 
     if(update) {
       console.log('UPDATE')
@@ -620,24 +620,45 @@ async function getPrice(asset) {
       // Fetch and save, build prices list
       //const url = 'https://api.coinmarketcap.com/v1/ticker/?limit=100'
       //const url = 'https://api.binance.com/api/v1/ticker/24hr?symbol='+asset+'USDT'
-      const list1 = await web.getApi('https://api.binance.com/api/v1/ticker/24hr')
-      console.log('Cryptos', list1?.length ?? 0)
-      if(list1) {
-        ok = true
-        for(item in list1) {
-          symbol = list1[item].symbol
-          price  = list1[item].lastPrice
-          if(symbol?.endsWith('USDT')){
-            const coin = symbol.substr(0, symbol.length - 4)
-            prices.cryptos[coin] = price
-            //console.log(coin, price)
+      //const list1 = await web.getApi('https://api.binance.com/api/v1/ticker/24hr')
+      //console.log('Cryptos', list1)
+      //console.log('Cryptos', list1?.length ?? 0)
+      //if(list1) {
+      //  ok = true
+      //  for(item in list1) {
+      //    symbol = list1[item].symbol
+      //    price  = list1[item].lastPrice
+      //    if(symbol?.endsWith('USDT')){
+      //      const coin = symbol.substr(0, symbol.length - 4)
+      //      prices.cryptos[coin] = price
+      //      //console.log(coin, price)
+      //    }
+      //  }
+      //  ok = await db.saveText('cryptos', JSON.stringify(prices.cryptos))
+      //} else {
+      //  console.error("PRICE CRYPTO NO JSON")
+      //  ok = false
+      //  //prices.cryptos = {}
+      //}
+
+      try {
+        const list1 = await web.getApi('https://kuyawa.net/exchange/api/ticker')
+        //console.log(list1)
+        if(list1){
+          for(const item of list1.ticker.data){
+            //console.log(item.symbol, item.quote.USD.price)
+            symbol = item?.symbol ?? 'XXX'
+            price  = item?.quote?.USD?.price ?? 0
+            prices.cryptos[symbol] = price
           }
+          ok = await db.saveText('cryptos', JSON.stringify(prices.cryptos))
+        } else {
+         console.error("PRICE CRYPTO NO JSON")
+         ok = false
+         //prices.cryptos = {}
         }
-        ok = await db.saveText('cryptos', JSON.stringify(prices.cryptos))
-      } else {
-        console.error("PRICE CRYPTO NO JSON")
-        ok = false
-        //prices.cryptos = {}
+      } catch(ex) {
+        console.error(ex?.message??'Error')
       }
 
       //---- CURRENCIES
