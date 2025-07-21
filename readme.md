@@ -85,5 +85,28 @@ Aqui está uma lista de coisas que você pode fazer:
 
 ## Roadmap:
 
-Fonpagobot is in constant development, in the future it will allow users to exchange crypto currencies easily
+Fonpagobot is in constant development, in the future it will allow users to exchange crypto currencies easily and will offer more tools for merchants to easily track orders and invoices
 
+Version 1.0
+
+- Register user
+- Send and receive money
+- Check account balance
+- Check transaction history
+
+Version 2.0
+
+- List assets in portfolio
+- Check crypto/forex ticker prices
+- Exchange crypto/forex at market price
+- Check the orderbook for a symbol
+- Check history of trades
+
+Version 3.0
+
+- Dashboard for Merchants
+- Numbered points of sale for same account
+- QR-Code payments with instant POS notification
+- Reports on sales daily/weekly/monthly/yearly
+
+Check back often for new releases!
