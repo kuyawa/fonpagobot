@@ -595,7 +595,8 @@ async function getPrice(asset) {
     // if updated < now-1hour then get new data else use data from record
     let update = false
     let prices = await db.getPrices()
-    //console.log('Prices: ',prices)
+    //console.log('DB PRICES:', prices)
+    console.log('DB PRICES:', Object.keys(prices?.cryptos??{}).length ?? 0, Object.keys(prices?.currencies??{}).length ?? 0, prices?.updated)
     if(!prices){ 
       update = true
       prices = { currencies:{}, cryptos:{}, updated: 0 }
@@ -610,6 +611,7 @@ async function getPrice(asset) {
     update = true // REMOVE
 
     if(update) {
+      console.log('UPDATE')
       prices = { currencies:{}, cryptos:{}, updated: 0 }
       let symbol = null
       let price  = null
@@ -619,7 +621,7 @@ async function getPrice(asset) {
       //const url = 'https://api.coinmarketcap.com/v1/ticker/?limit=100'
       //const url = 'https://api.binance.com/api/v1/ticker/24hr?symbol='+asset+'USDT'
       const list1 = await web.getApi('https://api.binance.com/api/v1/ticker/24hr')
-      //console.log(list1)
+      console.log('Cryptos', list1?.length ?? 0)
       if(list1) {
         ok = true
         for(item in list1) {
@@ -631,16 +633,16 @@ async function getPrice(asset) {
             //console.log(coin, price)
           }
         }
+        ok = await db.saveText('cryptos', JSON.stringify(prices.cryptos))
       } else {
-        console.error("Price NO JSON")
+        console.error("PRICE CRYPTO NO JSON")
         ok = false
-        prices.cryptos = {}
+        //prices.cryptos = {}
       }
-      ok = await db.saveText('cryptos', JSON.stringify(prices.cryptos))
 
       //---- CURRENCIES
       const list2 = await web.getApi('https://openexchangerates.org/api/latest.json?app_id='+OPENEXKEY)
-      //console.log(list1)
+      console.log('Currencies', Object.keys(list2?.rates ?? {}).length ?? 0)
       if(list2) {
         ok = true
         for(item in list2.rates) { 
@@ -649,16 +651,17 @@ async function getPrice(asset) {
           prices.currencies[symbol] = price
         }
       } else {
-        console.error("Price NO JSON")
+        console.error("PRICE CURRENCY NO JSON")
         ok = false
-        prices.currencies = {}
+        //prices.currencies = {}
       }
 
       //console.log(prices)
       ok = await db.saveText('currencies', JSON.stringify(prices.currencies))
+    } else {
+      console.log('NO UPDATE')
     }
 
-    // TODO: Check pairs for market price
     price = prices.currencies[asset]
     if(asset==='BTC') { price = null } // Skip btc in currencies, check as crypto
     if (!price){
@@ -668,7 +671,7 @@ async function getPrice(asset) {
     }
     ok = true
   } catch (ex) {
-    console.error("Price ERROR:", ex?.message)
+    console.error("PRICE ERROR:", ex?.message)
     ok = false
     price = 0
   }
