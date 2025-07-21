@@ -13,7 +13,7 @@ const apiKey   = process.env.TONWEBKEY || ''
 const rpcUrl   = network==='mainnet' ? 'https://toncenter.com/api/v2/jsonRPC' : 'https://testnet.toncenter.com/api/v2/jsonRPC'
 const apiUrl2  = network==='mainnet' ? 'https://toncenter.com/api/v2/' : 'https://testnet.toncenter.com/api/v2/'
 const apiUrl3  = network==='mainnet' ? 'https://toncenter.com/api/v3/' : 'https://testnet.toncenter.com/api/v3/'
-const tokenBRL = process.env.BRLMASTER
+const tokenBRL = process.env.JETTONBRL
 
 async function sleep(seconds=5){
   await new Promise(resolve => setTimeout(resolve, seconds * 1000))
