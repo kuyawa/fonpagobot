@@ -106,7 +106,7 @@ async function parseText(user, body, action) {
   function parseName(text) {
     const data = { name:'' }
     const words = text.trim().split(/\s+/)
-    if (words[0].toLowerCase()!==VOX.name){ return null }
+    if (words[0].toLowerCase()!==VOX.name || words[0].toLowerCase()!=='/'+VOX.name){ return null }
     if (words.length===2){ data.name = words[1] }
     if (words.length>2) { data.name = words.splice(1).join(' ') }
     return data
@@ -193,7 +193,7 @@ async function parseText(user, body, action) {
 
   function parsePrice(text) { 
     const words = text.trim().toUpperCase().split(/\s+/)
-    if (words[0].toLowerCase()!==VOX.price){ return null }
+    if (words[0].toLowerCase()!==VOX.price || words[0].toLowerCase()!=='/'+VOX.price){ return null }
     let asset = CURRENCY
     let list  = null
     if (words.length>1) { asset = words[1] }
