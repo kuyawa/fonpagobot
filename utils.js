@@ -14,6 +14,7 @@ function firstWord(text) {
   const words = text.trim().toLowerCase().split(/\s+/)
   if(words.length>0) { first = words[0] }
   if(first[0]==='@') { first = '@' }
+  if(first[0]==='/') { first = first.substr(1) }
   return first
 }
 
